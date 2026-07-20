@@ -1,5 +1,5 @@
-const CACHE = 'commando-pc-v2';
-const CHUNKS = Array.from({ length: 15 }, (_, index) => `./src/chunks/game-${String(index).padStart(2, '0')}.part`);
+const CACHE = 'commando-pc-v3';
+const CHUNKS = Array.from({ length: 19 }, (_, index) => `./src/chunks/game-${String(index).padStart(2, '0')}.part`);
 const ASSETS = [
   './', './index.html', './styles.css', './src/game.js',
   './assets/logo.svg', './assets/favicon.svg', './assets/key-art.svg', './manifest.webmanifest',

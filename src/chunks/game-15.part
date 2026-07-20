@@ -1,0 +1,150 @@
+
+// OPERATION CINDER: DEEP CAMPAIGN EXPANSION
+const DIFFICULTIES = {
+  story: {
+    key: 'story', label: 'STORY', tagline: 'Cinematic momentum with generous recovery.',
+    enemyHp: .76, incoming: .58, fireRate: 1.34, enemySpeed: .94, spawn: .78,
+    eliteChance: .025, directorRate: 1.34, supplyChance: .76, score: .72,
+    armor: 72, grenades: 6,
+  },
+  operative: {
+    key: 'operative', label: 'OPERATIVE', tagline: 'Balanced arcade combat and tactical pressure.',
+    enemyHp: 1, incoming: 1, fireRate: 1, enemySpeed: 1, spawn: 1,
+    eliteChance: .075, directorRate: 1, supplyChance: .36, score: 1,
+    armor: 45, grenades: 4,
+  },
+  veteran: {
+    key: 'veteran', label: 'VETERAN', tagline: 'Denser formations, faster reactions, scarce supplies.',
+    enemyHp: 1.22, incoming: 1.24, fireRate: .84, enemySpeed: 1.08, spawn: 1.22,
+    eliteChance: .14, directorRate: .82, supplyChance: .18, score: 1.35,
+    armor: 30, grenades: 3,
+  },
+  nightmare: {
+    key: 'nightmare', label: 'NIGHTMARE', tagline: 'Relentless elite pressure for mastered loadouts.',
+    enemyHp: 1.52, incoming: 1.55, fireRate: .68, enemySpeed: 1.16, spawn: 1.48,
+    eliteChance: .24, directorRate: .64, supplyChance: .08, score: 1.8,
+    armor: 18, grenades: 2,
+  },
+};
+
+const OPERATION_MUTATORS = [
+  { key: 'crossfire', name: 'CROSSFIRE DOCTRINE', detail: 'Marksmen and rifle teams occupy overlapping lanes.' },
+  { key: 'armored', name: 'ARMORED COLUMN', detail: 'Shield operators and heavies anchor reinforcement waves.' },
+  { key: 'swarm', name: 'DRONE SWARM', detail: 'Fast aerial hunter groups patrol the route.' },
+  { key: 'hunters', name: 'HUNTER KILL TEAM', detail: 'Close-range specialists aggressively collapse distance.' },
+  { key: 'medics', name: 'FIELD MEDICS', detail: 'Support operators restore nearby wounded hostiles.' },
+  { key: 'volatile', name: 'VOLATILE MUNITIONS', detail: 'Elite enemies detonate when neutralized.' },
+  { key: 'minefield', name: 'SCATTERED MINEFIELD', detail: 'Proximity mines turn movement lanes into tactical choices.' },
+  { key: 'blackout', name: 'TACTICAL BLACKOUT', detail: 'Visibility contracts around Ranger One.' },
+];
+
+const FIELD_DOCTRINES = [
+  { key: 'plating', name: 'REINFORCED PLATING', detail: '+25 maximum armor and full armor repair.', apply(g) { g.campaignBuffs.maxArmor += 25; g.player.maxArmor += 25; g.player.armor = g.player.maxArmor; } },
+  { key: 'medic', name: 'COMBAT MEDIC', detail: '+18 maximum health and immediate recovery.', apply(g) { g.campaignBuffs.maxHp += 18; g.player.maxHp += 18; g.player.hp = g.player.maxHp; } },
+  { key: 'overpressure', name: 'OVERPRESSURE AMMO', detail: '+14% weapon damage for the remainder of the campaign.', apply(g) { g.campaignBuffs.damage *= 1.14; } },
+  { key: 'quickhands', name: 'QUICK HANDS', detail: 'Reload all weapons 18% faster.', apply(g) { g.campaignBuffs.reload *= .82; } },
+  { key: 'evasion', name: 'EVASION DRILLS', detail: 'Dash recovers 18% faster and grants a longer safety window.', apply(g) { g.campaignBuffs.dash *= .82; g.campaignBuffs.dashInvuln += .07; } },
+  { key: 'scavenger', name: 'SCAVENGER NET', detail: 'Improves supply drops and pickup effectiveness.', apply(g) { g.campaignBuffs.scavenge += .22; } },
+  { key: 'grenadier', name: 'GRENADIER KIT', detail: '+2 grenade capacity and +22% explosive damage.', apply(g) { g.campaignBuffs.grenade *= 1.22; g.campaignBuffs.grenadeCap += 2; g.player.grenades = Math.min(8 + g.campaignBuffs.grenadeCap, g.player.grenades + 2); } },
+  { key: 'momentum', name: 'MOMENTUM PROTOCOL', detail: 'Combos build faster and decay more slowly.', apply(g) { g.campaignBuffs.combo += .3; } },
+];
+
+Object.assign(ENEMY_TYPES, {
+  rocketeer: { name: 'ROCKETEER', hp: 96, speed: 82, radius: 21, fireRate: 2.85, damage: 34, range: 650, score: 320, color: '#8b5a45', behavior: 'grenade' },
+  medic: { name: 'FIELD MEDIC', hp: 88, speed: 108, radius: 19, fireRate: 1.18, damage: 8, range: 430, score: 300, color: '#477261', behavior: 'strafe' },
+  hunter: { name: 'HUNTER', hp: 68, speed: 218, radius: 17, fireRate: .48, damage: 10, range: 260, score: 260, color: '#a0543f', behavior: 'rush' },
+});
+
+LEVELS[0].enemies.push('hunter');
+LEVELS[1].enemies.push('medic', 'rocketeer');
+LEVELS[2].enemies.push('medic', 'rocketeer');
+LEVELS[3].enemies.push('hunter', 'rocketeer');
+LEVELS[4].enemies.push('medic', 'hunter');
+LEVELS[5].enemies.push('rocketeer', 'medic', 'hunter');
+
+const originalActivateMenu = Game.prototype.activateMenu;
+const originalUpdate = Game.prototype.update;
+const originalDraw = Game.prototype.draw;
+const originalStartCampaign = Game.prototype.startCampaign;
+const originalStartLevel = Game.prototype.startLevel;
+const originalGenerateWorld = Game.prototype.generateWorld;
+const originalUpdatePlaying = Game.prototype.updatePlaying;
+const originalCompleteLevel = Game.prototype.completeLevel;
+const originalDrawBriefing = Game.prototype.drawBriefing;
+const originalDrawPlaying = Game.prototype.drawPlaying;
+const originalDrawVictory = Game.prototype.drawVictory;
+const originalUpdateVictory = Game.prototype.updateVictory;
+const originalDrawMenu = Game.prototype.drawMenu;
+const originalDrawMissionSelect = Game.prototype.drawMissionSelect;
+const originalPlayerReset = Player.prototype.resetForCampaign;
+const originalPlayerResetPosition = Player.prototype.resetPosition;
+const originalPlayerUpdate = Player.prototype.update;
+const originalPlayerReload = Player.prototype.reload;
+const originalPlayerTakeDamage = Player.prototype.takeDamage;
+const originalPlayerPickup = Player.prototype.pickup;
+const originalEnemyTakeDamage = Enemy.prototype.takeDamage;
+const originalEnemyUpdate = Enemy.prototype.update;
+const originalEnemyDie = Enemy.prototype.die;
+const originalEnemyDraw = Enemy.prototype.draw;
+
+Game.prototype.resetCampaignDepth = function() {
+  this.campaignBuffs = { maxHp: 0, maxArmor: 0, damage: 1, reload: 1, dash: 1, dashInvuln: 0, scavenge: 0, grenade: 1, grenadeCap: 0, combo: 0 };
+  this.doctrines = [];
+  this.armoryChoices = [];
+  this.eliteKills = 0;
+  this.maxComboReached = 1;
+  this.missionRank = 'C';
+};
+
+Game.prototype.setDifficulty = function(key) {
+  this.difficultyKey = DIFFICULTIES[key] ? key : 'operative';
+  this.difficulty = DIFFICULTIES[this.difficultyKey];
+  safeStorage.set('commandoPC.difficulty', this.difficultyKey);
+  this.menuItems = ['START CAMPAIGN', `DIFFICULTY: ${this.difficulty.label}`, 'MISSION SELECT', 'HOW TO PLAY', 'CREDITS'];
+  modeStatus.textContent = `${this.difficulty.label} MODE`;
+};
+
+Game.prototype.pickMissionMutators = function(index) {
+  const count = this.difficultyKey === 'story' ? 0 : this.difficultyKey === 'operative' ? 1 : this.difficultyKey === 'veteran' ? 2 : 3;
+  const preferred = [
+    ['hunters', 'crossfire', 'minefield'],
+    ['medics', 'crossfire', 'swarm'],
+    ['armored', 'medics', 'minefield'],
+    ['swarm', 'hunters', 'volatile'],
+    ['blackout', 'armored', 'medics'],
+    ['volatile', 'armored', 'swarm'],
+  ][index] || [];
+  const pool = [...new Set([...preferred, ...OPERATION_MUTATORS.map((m) => m.key)])];
+  const offset = (index * 3 + Math.floor(this.score / 5000)) % pool.length;
+  return Array.from({ length: count }, (_, i) => pool[(offset + i * 2) % pool.length]);
+};
+
+Game.prototype.makeSecondaryOps = function() {
+  const timeLimit = Math.round((118 + this.levelIndex * 22) / Math.max(.82, this.difficulty.spawn));
+  const pool = [
+    { key: 'rapid', name: 'RAPID EXTRACTION', detail: `Finish in under ${Math.floor(timeLimit / 60)}:${String(timeLimit % 60).padStart(2, '0')}`, target: timeLimit },
+    { key: 'chain', name: 'CHAIN REACTION', detail: 'Reach a x4 combat combo', target: 4 },
+    { key: 'survivor', name: 'SURVIVOR', detail: 'Take no more than 62 total damage', target: 62 },
+    { key: 'elite', name: 'ELITE HUNTER', detail: 'Neutralize 2 elite hostiles', target: 2 },
+  ];
+  const first = pool[(this.levelIndex + (this.difficultyKey === 'nightmare' ? 1 : 0)) % pool.length];
+  const second = pool[(this.levelIndex + 2) % pool.length];
+  return [first, second].map((op) => ({ ...op, complete: false }));
+};
+
+Game.prototype.updateDifficulty = function() {
+  if (input.consume('Escape')) return this.setState('menu');
+  if (input.consume('ArrowRight') || input.consume('KeyD') || input.consume('ArrowDown')) this.difficultyIndex = (this.difficultyIndex + 1) % 4;
+  if (input.consume('ArrowLeft') || input.consume('KeyA') || input.consume('ArrowUp')) this.difficultyIndex = (this.difficultyIndex + 3) % 4;
+  if (input.consume('Enter') || input.consume('Space')) {
+    const key = Object.keys(DIFFICULTIES)[this.difficultyIndex];
+    this.setDifficulty(key);
+    audio.sfx('confirm');
+    this.setState('menu');
+  }
+};
+
+Game.prototype.drawDifficulty = function(c) {
+  c.fillStyle = '#071018'; c.fillRect(0, 0, W, H); this.drawTopographic(c, '#ff6b2c');
+  text(c, 'SELECT DIFFICULTY', 64, 66, 38, '#f8f2df');
+  text(c, 'Difficulty changes formations, aggression, resources, elite density and score potential.', 66, 105, 13, '#9eb0b5', 'left', 700, 'Inter, sans-serif');

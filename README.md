@@ -25,18 +25,28 @@ American Special Forces operator Captain Mara Vance, callsign Ranger One, enters
 
 The narrative and factions are fictional. No real operation, unit deployment, person, flag, or faction insignia is depicted.
 
+## Deep campaign systems
+
+- Four distinct difficulty tiers: **Story**, **Operative**, **Veteran**, and **Nightmare**
+- Difficulty-specific hostile durability, damage, aggression, formation density, elite frequency, supply scarcity, starting resources, and score multipliers
+- A dynamic combat director that reacts to mission progress, player health, and combo pressure with reinforcement squads and emergency supplies
+- Eight operation mutators including crossfire teams, armored columns, drone swarms, hunter teams, medics, volatile elites, minefields, and tactical blackouts
+- Eight persistent field doctrines selected between missions, enabling different health, armor, damage, reload, dash, scavenging, explosive, and combo builds
+- Optional mission operations, S/A/B/C mission ranks, elite bonuses, and difficulty-adjusted scoring
+
 ## Features
 
 - Six complete campaign levels with individual palettes, weather, props, objectives and music patterns
-- Seven enemy archetypes: rifleman, rusher, grenadier, marksman, shield unit, heavy unit, drone, plus a multi-phase boss
+- Ten standard enemy archetypes: rifleman, rusher, grenadier, marksman, shield unit, heavy unit, drone, rocketeer, field medic, and hunter, plus a multi-phase boss
+- Elite enemy variants with stronger stats, bonus scoring, unique UI treatment, improved drops, and volatile death behavior on selected operations
 - Six weapons: carbine, SMG, shotgun, LMG, grenade launcher and arc prototype
 - Dash invulnerability, grenades, armor, pickups, reloads, weapon cycling and combo scoring
 - Destructible relays, coolant pumps, convoy and recoverable plutonium core
-- Original key art, logo, comic panels, HUD, menu, pause, briefing, victory, defeat and campaign-complete screens
+- Original key art, logo, comic panels, HUD, menu, difficulty screen, field armory, briefing, pause, victory, defeat and campaign-complete screens
 - Procedural muzzle flashes, shell ejection, impact sparks, smoke, dust, explosions, screen shake, decals and enemy-specific death treatments
 - Original synthesized soundtrack with mission-specific patterns and procedural SFX
 - Keyboard, mouse and touch controls
-- Local progress/high-score saving, offline service-worker cache and GitHub Pages deployment workflow
+- Local progress/high-score/difficulty saving, offline service-worker cache and GitHub Pages deployment workflow
 
 ## Controls
 
@@ -60,7 +70,7 @@ Touch devices receive an analog movement stick, fire, dash and grenade controls.
 npm run check
 ```
 
-This performs JavaScript syntax checks and verifies that the shell, campaign data, assets, audio engine, weapon roster and enemy roster are present.
+This performs JavaScript syntax checks and verifies the shell, campaign data, assets, audio engine, four difficulty presets, operation mutators, field doctrines, combat director, weapon roster, and expanded enemy roster.
 
 ## Asset policy
 

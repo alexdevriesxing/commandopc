@@ -1,0 +1,150 @@
+  this.directorThreat = 0;
+  this.directorWave = 0;
+  this.hazards = [];
+  const result = originalStartLevel.call(this, index);
+  this.secondaryOps = this.makeSecondaryOps();
+  return result;
+};
+
+Game.prototype.generateWorld = function() {
+  originalGenerateWorld.call(this);
+  const density = Math.max(0, this.difficulty.spawn - 1);
+  const bonus = Math.round(this.spawnPlan.length * density * .5);
+  for (let i = 0; i < bonus; i++) {
+    const base = this.spawnPlan[(i * 7 + this.levelIndex * 11) % this.spawnPlan.length];
+    if (!base) break;
+    this.spawnPlan.push({ x: clamp(base.x + rand(-150, 150), 70, W - 70), y: base.y + rand(-70, 70), type: choose(this.level.enemies) });
+  }
+  const addFormation = (y, types) => types.forEach((type, i) => this.spawnPlan.push({ x: 190 + i * ((W - 380) / Math.max(1, types.length - 1)), y: y + (i % 2) * 52, type }));
+  for (let y = this.level.length - 1000; y > 780; y -= 1050) {
+    if (this.activeMutators.includes('crossfire')) addFormation(y, ['sniper', 'rifleman', 'rifleman', 'sniper']);
+    if (this.activeMutators.includes('armored')) addFormation(y - 120, ['shield', 'heavy', 'shield']);
+    if (this.activeMutators.includes('swarm')) addFormation(y - 220, ['drone', 'drone', 'drone']);
+    if (this.activeMutators.includes('hunters')) addFormation(y - 80, ['hunter', 'hunter', 'rocketeer']);
+    if (this.activeMutators.includes('medics')) addFormation(y - 180, ['rifleman', 'medic', 'heavy']);
+  }
+  if (this.activeMutators.includes('minefield')) {
+    for (let y = this.level.length - 850; y > 650; y -= 520) {
+      for (let i = 0; i < 3; i++) this.hazards.push({ x: 190 + i * 450 + rand(-80, 80), y: y + rand(-90, 90), radius: 54, triggered: false, phase: rand(TAU) });
+    }
+  }
+  this.spawnPlan.sort((a, b) => b.y - a.y);
+};
+
+Game.prototype.applyEnemyDifficulty = function(enemy) {
+  if (enemy._depthScaled) return;
+  enemy._depthScaled = true;
+  const isBoss = enemy.typeKey === 'boss';
+  const eliteChance = this.difficulty.eliteChance + this.levelIndex * .012;
+  enemy.elite = !isBoss && Math.random() < eliteChance;
+  const hpScale = this.difficulty.enemyHp * (enemy.elite ? 1.58 : 1);
+  enemy.maxHp *= hpScale;
+  enemy.hp *= hpScale;
+  enemy.fireRate *= this.difficulty.fireRate * (enemy.elite ? .82 : 1);
+  enemy.fireTimer = Math.min(enemy.fireTimer, enemy.fireRate);
+  enemy.speed *= this.difficulty.enemySpeed * (enemy.elite ? 1.08 : 1);
+  enemy.score = Math.round(enemy.score * this.difficulty.score * (enemy.elite ? 2 : 1));
+  enemy.healTimer = rand(1.8, 3.2);
+};
+
+Game.prototype.spawnDirectorWave = function() {
+  const highPressure = this.combo >= 4 || this.directorThreat > .7;
+  const count = clamp(2 + Math.floor(this.levelIndex / 2) + (highPressure ? 1 : 0) + (this.difficultyKey === 'nightmare' ? 1 : 0), 2, 6);
+  let roster = this.level.enemies;
+  if (this.activeMutators.includes('armored')) roster = ['shield', 'heavy', 'rocketeer'];
+  else if (this.activeMutators.includes('swarm')) roster = ['drone', 'drone', 'hunter'];
+  else if (this.activeMutators.includes('hunters')) roster = ['hunter', 'runner', 'rocketeer'];
+  else if (this.activeMutators.includes('medics')) roster = ['medic', 'rifleman', 'heavy'];
+  const fromLeft = this.directorWave % 2 === 0;
+  for (let i = 0; i < count; i++) {
+    const x = fromLeft ? 62 + i * 62 : W - 62 - i * 62;
+    const y = clamp(this.cameraY + 120 + i * 58, this.cameraY + 80, this.cameraY + H - 130);
+    const enemy = new Enemy(x, y, choose(roster), this.level.intensity);
+    enemy.orbitDir = fromLeft ? 1 : -1;
+    this.enemies.push(enemy);
+  }
+  this.directorWave++;
+  this.announce(highPressure ? 'ELITE RESPONSE TEAM DEPLOYED' : 'HOSTILE REINFORCEMENTS INBOUND', 1.7);
+};
+
+Game.prototype.updateDepthSystems = function(dt) {
+  this.maxComboReached = Math.max(this.maxComboReached, this.combo);
+  const progress = clamp(1 - this.player.y / this.level.length, 0, 1);
+  this.directorThreat = clamp(progress * .48 + Math.min(1, this.combo / 7) * .34 + (1 - this.player.hp / this.player.maxHp) * .18, 0, 1);
+  this.directorTimer -= dt;
+  if (this.directorTimer <= 0 && this.player.y > 700 && !this.player.dead) {
+    this.spawnDirectorWave();
+    const base = rand(18, 25) * this.difficulty.directorRate;
+    this.directorTimer = base * (1.08 - this.directorThreat * .25);
+  }
+  if (this.player.hp < this.player.maxHp * .34 && !this.noResupply && Math.random() < dt * .08 * (this.difficulty.supplyChance + this.campaignBuffs.scavenge)) {
+    if (!this.pickups.some((p) => p._directorAid)) {
+      const pickup = new Pickup(clamp(this.player.x + rand(-120, 120), 80, W - 80), this.player.y - 150, Math.random() < .55 ? 'health' : 'armor');
+      pickup._directorAid = true; this.pickups.push(pickup); this.announce('EMERGENCY SUPPLY DRONE', 1.5);
+    }
+  }
+  for (const mine of this.hazards) {
+    mine.phase += dt * 4;
+    if (!mine.triggered && dist2(mine, this.player) < mine.radius ** 2) {
+      mine.triggered = true;
+      this.explode(mine.x, mine.y, 112, 24, 'enemy');
+    }
+  }
+  this.hazards = this.hazards.filter((mine) => !mine.triggered);
+};
+
+Game.prototype.updatePlaying = function(dt) {
+  const result = originalUpdatePlaying.call(this, dt);
+  this.enemies.forEach((enemy) => this.applyEnemyDifficulty(enemy));
+  this.updateDepthSystems(dt);
+  return result;
+};
+
+Game.prototype.completeLevel = function() {
+  if (this.state !== 'playing') return;
+  const eliteMissionKills = (this.eliteKills || 0) - (this.eliteKillsAtStart || 0);
+  this.secondaryOps.forEach((op) => {
+    if (op.key === 'rapid') op.complete = this.levelStats.time <= op.target;
+    if (op.key === 'chain') op.complete = this.maxComboReached >= op.target;
+    if (op.key === 'survivor') op.complete = this.levelStats.damage <= op.target;
+    if (op.key === 'elite') op.complete = eliteMissionKills >= op.target;
+  });
+  const completed = this.secondaryOps.filter((op) => op.complete).length;
+  this.opsBonus = Math.round(completed * 1800 * this.difficulty.score);
+  this.score += this.opsBonus;
+  const rankValue = completed * 2 + (this.player.hp > 70 ? 2 : this.player.hp > 35 ? 1 : 0) + (this.maxComboReached >= 5 ? 2 : this.maxComboReached >= 3 ? 1 : 0);
+  this.missionRank = rankValue >= 6 ? 'S' : rankValue >= 4 ? 'A' : rankValue >= 2 ? 'B' : 'C';
+  return originalCompleteLevel.call(this);
+};
+
+Game.prototype.drawBriefing = function(c) {
+  originalDrawBriefing.call(this, c);
+  c.fillStyle = 'rgba(5,12,18,.94)'; roundRect(c, 92, 535, 610, 72, 12); c.fill();
+  text(c, `${this.difficulty.label}  ·  ${(this.activeMutators || []).length ? this.activeMutators.map((key) => OPERATION_MUTATORS.find((m) => m.key === key)?.name).join('  /  ') : 'STANDARD RULES'}`, 112, 553, 10, '#ff9867', 'left', 900, 'Inter, sans-serif');
+  const ops = (this.secondaryOps || []).map((op) => op.name).join('  +  ');
+  text(c, `OPTIONAL OPS: ${ops}`, 112, 580, 11, '#42e8dc', 'left', 900, 'Inter, sans-serif');
+};
+
+Game.prototype.drawDepthOverlay = function(c) {
+  for (const mine of this.hazards || []) {
+    const sy = mine.y - this.cameraY;
+    if (sy < 90 || sy > H - 55) continue;
+    c.save(); c.globalAlpha = .75 + Math.sin(mine.phase) * .2; c.translate(mine.x, sy);
+    c.fillStyle = '#2b3433'; c.strokeStyle = '#ff6b2c'; c.lineWidth = 3; c.beginPath(); c.arc(0, 0, 10, 0, TAU); c.fill(); c.stroke();
+    c.strokeStyle = 'rgba(255,107,44,.34)'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, mine.radius, 0, TAU); c.stroke(); c.restore();
+  }
+  if (this.activeMutators?.includes('blackout')) {
+    const x = this.player.x, y = this.player.y - this.cameraY;
+    const g = c.createRadialGradient(x, y, 120, x, y, 430); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.58, 'rgba(0,0,0,.3)'); g.addColorStop(1, 'rgba(0,0,0,.82)');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+  }
+  c.fillStyle = 'rgba(5,12,18,.78)'; roundRect(c, 24, 112, 244, 49, 10); c.fill();
+  text(c, `${this.difficulty.label}  ·  THREAT ${Math.round(this.directorThreat * 100)}%`, 40, 128, 10, '#ff9b68', 'left', 900, 'Inter, sans-serif');
+  c.fillStyle = '#1c2930'; roundRect(c, 40, 143, 210, 6, 3); c.fill();
+  c.fillStyle = this.directorThreat > .72 ? '#ff4d43' : '#42e8dc'; roundRect(c, 40, 143, 210 * this.directorThreat, 6, 3); c.fill();
+  const active = (this.activeMutators || []).slice(0, 2).map((key) => OPERATION_MUTATORS.find((m) => m.key === key)?.name).join(' / ');
+  if (active) text(c, active, W / 2, 91, 9, '#ffb07c', 'center', 900, 'Inter, sans-serif');
+};
+
+Game.prototype.drawPlaying = function(c) {
+  originalDrawPlaying.call(this, c);

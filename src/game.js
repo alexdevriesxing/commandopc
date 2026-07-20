@@ -1,4 +1,4 @@
-const chunkUrls = Array.from({ length: 15 }, (_, index) =>
+const chunkUrls = Array.from({ length: 19 }, (_, index) =>
   new URL(`./chunks/game-${String(index).padStart(2, '0')}.part`, import.meta.url)
 );
 
@@ -8,7 +8,8 @@ try {
     if (!response.ok) throw new Error(`Unable to load game source: ${url.pathname}`);
     return response.text();
   }));
-  const source = `${parts.join('')}\n//# sourceURL=operation-cinder.bundle.js`;
+  const source = `${parts.join('')}
+//# sourceURL=operation-cinder.bundle.js`;
   (0, eval)(source);
 } catch (error) {
   console.error(error);

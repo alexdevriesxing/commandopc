@@ -1,0 +1,140 @@
+  this.drawDepthOverlay(c);
+};
+
+Game.prototype.drawVictory = function(c) {
+  originalDrawVictory.call(this, c);
+  const continueButton = this.screenButtons.find((button) => button.x === 742 && button.y === 548);
+  if (continueButton && this.levelIndex < LEVELS.length - 1) continueButton.action = () => this.prepareArmory();
+  c.fillStyle = 'rgba(7,16,24,.96)'; roundRect(c, 560, 92, 138, 138, 16); c.fill();
+  c.strokeStyle = this.missionRank === 'S' ? '#ffd45a' : '#42e8dc'; c.lineWidth = 4; c.stroke();
+  text(c, 'MISSION RANK', 629, 119, 9, '#8fa2aa', 'center', 900, 'Inter, sans-serif');
+  strokeText(c, this.missionRank, 629, 169, 58, this.missionRank === 'S' ? '#ffd45a' : '#f8f2df', '#071018', 8, 'center');
+  text(c, `OPS BONUS  +${formatScore(this.opsBonus || 0)}`, 629, 207, 9, '#ff9764', 'center', 900, 'Inter, sans-serif');
+  (this.secondaryOps || []).forEach((op, i) => {
+    const x = 112 + i * 282, y = 542;
+    c.fillStyle = op.complete ? 'rgba(66,232,220,.12)' : 'rgba(255,255,255,.04)'; roundRect(c, x, y, 266, 34, 8); c.fill();
+    text(c, `${op.complete ? '✓' : '×'} ${op.name}`, x + 14, y + 17, 10, op.complete ? '#42e8dc' : '#7e9198', 'left', 900, 'Inter, sans-serif');
+  });
+};
+
+Game.prototype.drawMissionSelect = function(c) {
+  originalDrawMissionSelect.call(this, c);
+  this.screenButtons.slice(0, LEVELS.length).forEach((button, i) => {
+    if (i >= this.maxUnlocked) return;
+    button.action = () => {
+      this.score = 0; this.kills = 0; this.resetCampaignDepth(); this.player.resetForCampaign();
+      for (let k = 0; k < i; k++) if (LEVELS[k].reward) this.player.unlocked.add(LEVELS[k].reward);
+      if (i > 0 && LEVELS[i - 1].reward) this.player.equip(LEVELS[i - 1].reward, true);
+      this.startLevel(i);
+    };
+  });
+  text(c, `ACTIVE DIFFICULTY: ${this.difficulty.label}`, W - 64, 62, 11, '#ff9867', 'right', 900, 'Inter, sans-serif');
+};
+
+Player.prototype.resetForCampaign = function() {
+  originalPlayerReset.call(this);
+  const g = window.__commandoGame;
+  if (!g?.difficulty) return;
+  this.maxHp = 100 + (g.campaignBuffs?.maxHp || 0);
+  this.maxArmor = 100 + (g.campaignBuffs?.maxArmor || 0);
+  this.hp = this.maxHp;
+  this.armor = Math.min(this.maxArmor, g.difficulty.armor);
+  this.grenades = g.difficulty.grenades;
+};
+
+Player.prototype.resetPosition = function(gameRef) {
+  originalPlayerResetPosition.call(this, gameRef);
+  this.maxHp = 100 + (gameRef.campaignBuffs?.maxHp || 0);
+  this.maxArmor = 100 + (gameRef.campaignBuffs?.maxArmor || 0);
+  this.hp = Math.min(this.maxHp, this.hp);
+  this.armor = Math.min(this.maxArmor, this.armor);
+};
+
+Player.prototype.update = function(dt, gameRef) {
+  const priorDash = this.dashCooldown;
+  const result = originalPlayerUpdate.call(this, dt, gameRef);
+  if (priorDash <= 0 && this.dashCooldown > 0) {
+    this.dashCooldown *= gameRef.campaignBuffs.dash;
+    this.invuln += gameRef.campaignBuffs.dashInvuln;
+  }
+  return result;
+};
+
+Player.prototype.reload = function() {
+  const before = this.reloadTimer;
+  originalPlayerReload.call(this);
+  const g = window.__commandoGame;
+  if (before <= 0 && this.reloadTimer > 0 && g?.campaignBuffs) this.reloadTimer *= g.campaignBuffs.reload;
+};
+
+Player.prototype.takeDamage = function(amount, gameRef) {
+  const hpBefore = this.hp, armorBefore = this.armor;
+  originalPlayerTakeDamage.call(this, amount * gameRef.difficulty.incoming, gameRef);
+  const loss = Math.max(0, hpBefore - this.hp) + Math.max(0, armorBefore - this.armor) * .35;
+  gameRef.levelStats.damage = (gameRef.levelStats.damage || 0) + loss;
+};
+
+Player.prototype.pickup = function(item, gameRef) {
+  const hp = this.hp, armor = this.armor, grenades = this.grenades, reserve = this.weapon.reserveAmmo;
+  originalPlayerPickup.call(this, item, gameRef);
+  const boost = gameRef.campaignBuffs.scavenge;
+  if (boost > 0) {
+    if (item.type === 'health') this.hp = Math.min(this.maxHp, this.hp + Math.round((this.hp - hp) * boost));
+    if (item.type === 'armor') this.armor = Math.min(this.maxArmor, this.armor + Math.round((this.armor - armor) * boost));
+    if (item.type === 'grenade') this.grenades = Math.min(8 + gameRef.campaignBuffs.grenadeCap, this.grenades + Math.ceil((this.grenades - grenades) * boost));
+    if (item.type === 'ammo') this.weapon.reserveAmmo = Math.min(this.weapon.reserve, this.weapon.reserveAmmo + Math.round((this.weapon.reserveAmmo - reserve) * boost));
+  }
+};
+
+Enemy.prototype.takeDamage = function(amount, sourceAngle, gameRef, projectile) {
+  let scaled = amount * gameRef.campaignBuffs.damage;
+  if (projectile?.explosive || projectile?.grenade) scaled *= gameRef.campaignBuffs.grenade;
+  const result = originalEnemyTakeDamage.call(this, scaled, sourceAngle, gameRef, projectile);
+  gameRef.comboTimer += gameRef.campaignBuffs.combo;
+  return result;
+};
+
+Enemy.prototype.update = function(dt, gameRef) {
+  if (!Number.isFinite(this.healTimer)) this.healTimer = rand(1.8, 3.2);
+  const alive = originalEnemyUpdate.call(this, dt, gameRef);
+  if (!this.dead && this.typeKey === 'medic') {
+    this.healTimer -= dt;
+    if (this.healTimer <= 0) {
+      const target = gameRef.enemies.filter((e) => e !== this && !e.dead && e.hp < e.maxHp && dist2(e, this) < 270 ** 2).sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+      if (target) {
+        target.hp = Math.min(target.maxHp, target.hp + target.maxHp * .16);
+        gameRef.floating.push(new FloatingText(target.x, target.y - target.radius, 'REPAIR', '#63f0c3', 13));
+        for (let i = 0; i < 10; i++) gameRef.particles.push(new Particle(target.x, target.y, { vx: rand(-60, 60), vy: rand(-90, -20), life: rand(.25, .5), size: rand(2, 5), color: '#63f0c3', glow: 8 }));
+      }
+      this.healTimer = rand(2.4, 3.6);
+    }
+  }
+  return alive;
+};
+
+Enemy.prototype.die = function(gameRef, sourceAngle) {
+  const wasElite = this.elite;
+  originalEnemyDie.call(this, gameRef, sourceAngle);
+  if (wasElite) {
+    gameRef.eliteKills = (gameRef.eliteKills || 0) + 1;
+    gameRef.score += Math.round(240 * gameRef.difficulty.score);
+    gameRef.floating.push(new FloatingText(this.x, this.y - 45, 'ELITE +', '#ffd45a', 17));
+  }
+  if (wasElite && gameRef.activeMutators?.includes('volatile') && this.typeKey !== 'boss') gameRef.explode(this.x, this.y, 108, 28, 'enemy');
+  if (wasElite && Math.random() < .12 + gameRef.campaignBuffs.scavenge) gameRef.pickups.push(new Pickup(this.x, this.y, choose(['ammo', 'armor', 'grenade'])));
+};
+
+Enemy.prototype.draw = function(c, cameraY) {
+  originalEnemyDraw.call(this, c, cameraY);
+  if (this.elite && !this.dead) {
+    const sy = this.y - cameraY;
+    c.save(); c.globalAlpha = .65 + Math.sin(this.phase * 5) * .22; c.strokeStyle = '#ffd45a'; c.lineWidth = 3; c.setLineDash([7, 6]);
+    c.beginPath(); c.arc(this.x, sy, this.radius + 10, 0, TAU); c.stroke(); c.setLineDash([]);
+    text(c, 'ELITE', this.x, sy - this.radius - 34, 9, '#ffd45a', 'center', 900, 'Inter, sans-serif'); c.restore();
+  }
+};
+
+const chosenDifficulty = safeStorage.get('commandoPC.difficulty', 'operative');
+game.resetCampaignDepth();
+game.setDifficulty(chosenDifficulty);
+game.difficultyIndex = Math.max(0, Object.keys(DIFFICULTIES).indexOf(game.difficultyKey));
