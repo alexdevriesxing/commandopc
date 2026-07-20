@@ -1,0 +1,14 @@
+{
+  "name": "commando-pc-operation-cinder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Original modern web arcade shooter with custom Canvas art and WebAudio soundtrack.",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 4173",
+    "check": "node --check src/game.js && node tests/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
