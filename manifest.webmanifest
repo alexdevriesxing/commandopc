@@ -1,0 +1,11 @@
+{
+  "name": "Commando PC: Operation Cinder",
+  "short_name": "Commando PC",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#061019",
+  "theme_color": "#071018",
+  "icons": [
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
