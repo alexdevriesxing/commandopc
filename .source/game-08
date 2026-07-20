@@ -1,0 +1,184 @@
+dt));
+    this.updateTargets(dt);
+    this.handleCollisions();
+    this.updateWeather(dt);
+
+    this.comboTimer -= dt;
+    if (this.comboTimer <= 0 && this.combo > 1) {
+      this.combo = Math.max(1, this.combo - dt * 1.6);
+      if (this.combo <= 1) { this.combo = 1; this.comboHits = 0; }
+    }
+
+    this.checkMissionComplete(dt);
+  }
+
+  updateTargets(dt) {
+    for (const t of this.targets) {
+      t.phase += dt;
+      if (t.type === 'convoy' && !t.dead) {
+        t.x = W / 2 + Math.sin(t.phase * .65) * 170;
+        t.y = Math.max(390, t.y - dt * 13);
+      }
+      if (t.type === 'core' && this.bossDefeated) t.locked = false;
+    }
+  }
+
+  updateWeather(dt) {
+    this.ambientTimer -= dt;
+    if (this.ambientTimer <= 0) {
+      this.ambientTimer = this.level.weather === 'embers' ? .025 : .055;
+      const p = { x: rand(W), y: rand(H), vx: 0, vy: 0, life: rand(1.4, 3), maxLife: 2 };
+      if (this.level.weather === 'heat' || this.level.weather === 'glare') { p.vx = rand(-6, 6); p.vy = rand(-8, -2); p.type = 'heat'; }
+      if (this.level.weather === 'wind') { p.vx = rand(150, 280); p.vy = rand(-20, 20); p.type = 'dust'; }
+      if (this.level.weather === 'ash') { p.vx = rand(-30, 30); p.vy = rand(18, 55); p.type = 'ash'; }
+      if (this.level.weather === 'sparks') { p.vx = rand(-20, 20); p.vy = rand(50, 130); p.type = 'spark'; }
+      if (this.level.weather === 'embers') { p.vx = rand(-45, 45); p.vy = rand(-110, -45); p.type = 'ember'; }
+      this.weatherParticles.push(p);
+    }
+    this.weatherParticles = this.weatherParticles.filter((p) => {
+      p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      return p.life > 0 && p.x > -50 && p.x < W + 50 && p.y > -60 && p.y < H + 60;
+    });
+  }
+
+  handleCollisions() {
+    for (const p of this.projectiles) {
+      if (p.life <= 0) continue;
+      if (p.team === 'player') {
+        for (const e of this.enemies) {
+          if (e.dead || p.hit.has(e)) continue;
+          if (segmentCircle(p.prevX, p.prevY, p.x, p.y, e.x, e.y, e.radius + p.radius)) {
+            p.hit.add(e);
+            e.takeDamage(p.damage, p.angle, this, p);
+            if (p.explosive) { p.life = 0; break; }
+            if (p.pierce > 0) p.pierce--; else { p.life = 0; break; }
+          }
+        }
+        for (const t of this.targets) {
+          if (t.dead || t.type === 'core' || p.life <= 0) continue;
+          const radius = t.type === 'convoy' ? 60 : 38;
+          if (segmentCircle(p.prevX, p.prevY, p.x, p.y, t.x, t.y, radius)) {
+            this.damageTarget(t, p.damage);
+            if (p.explosive) this.explode(p.x, p.y, 138, p.damage, 'player');
+            p.life = 0;
+          }
+        }
+      } else if (p.team === 'enemy') {
+        if (segmentCircle(p.prevX, p.prevY, p.x, p.y, this.player.x, this.player.y, this.player.radius + p.radius)) {
+          if (p.explosive) { p.life = 0; this.explode(p.x, p.y, 92, p.damage, 'enemy'); }
+          else { this.player.takeDamage(p.damage, this); p.life = 0; }
+        }
+      }
+    }
+
+    for (const item of this.pickups) {
+      if (dist2(item, this.player) < (item.radius + this.player.radius) ** 2) {
+        this.player.pickup(item, this);
+        item.life = 0;
+      }
+    }
+
+    for (const t of this.targets) {
+      if (t.type === 'core' && !t.locked && !t.dead && dist2(t, this.player) < 70 ** 2) {
+        t.dead = true;
+        this.coreRecovered = true;
+        this.announce('PLUTONIUM CORE SECURED', 3);
+        audio.sfx('pickup');
+        this.score += 5000;
+      }
+    }
+
+    for (const e of this.enemies) {
+      if (!e.dead && dist2(e, this.player) < (e.radius + this.player.radius) ** 2) {
+        this.player.takeDamage(e.behavior === 'heavy' || e.behavior === 'boss' ? 18 : 9, this);
+        const a = angleTo(e, this.player);
+        this.player.x += Math.cos(a) * 14;
+        this.player.y += Math.sin(a) * 14;
+      }
+    }
+  }
+
+  damageTarget(t, amount) {
+    t.hp -= amount;
+    this.floating.push(new FloatingText(t.x, t.y - 46, `${Math.round(amount)}`, '#ffd05a', 16));
+    for (let i = 0; i < 7; i++) this.particles.push(new Particle(t.x, t.y, {
+      vx: rand(-180, 180), vy: rand(-180, 180), life: rand(.12, .35), size: rand(2, 6), color: choose(['#ff9c42', '#ffd85e', '#7b8990']), shape: 'spark',
+    }));
+    if (t.hp <= 0 && !t.dead) {
+      t.dead = true;
+      this.score += t.type === 'convoy' ? 2500 : 850;
+      this.explode(t.x, t.y, t.type === 'convoy' ? 190 : 120, 0, 'neutral');
+      this.decals.push(new Decal(t.x, t.y, 'scorch', t.type === 'convoy' ? 75 : 48));
+      const remaining = this.targets.filter((x) => !x.dead && x.type === t.type).length;
+      this.announce(remaining ? `${remaining} ${t.type === 'pump' ? 'COOLANT PUMPS' : 'TARGETS'} REMAIN` : 'PRIMARY TARGETS DESTROYED', 2.2);
+    }
+  }
+
+  explode(x, y, radius, damage, team) {
+    this.shake += radius * .08;
+    this.flash = Math.max(this.flash, .16);
+    this.decals.push(new Decal(x, y, 'scorch', radius * .55));
+    audio.sfx('explosion', clamp(radius / 130, .4, 1.4));
+    for (let i = 0; i < Math.floor(radius * .32); i++) {
+      const a = rand(TAU); const s = rand(60, radius * 3.1);
+      this.particles.push(new Particle(x, y, {
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rand(.2, .8), size: rand(3, 13),
+        color: choose(['#fff0a0', '#ffb135', '#ff6235', '#4b3030']), shape: Math.random() < .45 ? 'spark' : 'circle', glow: Math.random() < .5 ? 12 : 0, gravity: 80,
+      }));
+    }
+    for (let i = 0; i < 14; i++) this.particles.push(new Particle(x, y, {
+      vx: rand(-110, 110), vy: rand(-110, 110), life: rand(.5, 1.1), size: rand(14, 28), color: '#4a3a38', shape: 'smoke', drag: 1.6,
+    }));
+    if (damage > 0) {
+      if (team === 'player') {
+        for (const e of this.enemies) {
+          if (!e.dead) {
+            const d = Math.hypot(e.x - x, e.y - y);
+            if (d < radius) e.takeDamage(damage * (1 - d / radius * .65), angleTo({ x, y }, e), this, { color: '#ff9d4d' });
+          }
+        }
+        for (const t of this.targets) {
+          if (!t.dead && t.type !== 'core' && Math.hypot(t.x - x, t.y - y) < radius) this.damageTarget(t, damage * .65);
+        }
+      } else if (team === 'enemy' && Math.hypot(this.player.x - x, this.player.y - y) < radius) {
+        this.player.takeDamage(damage, this);
+      }
+    }
+  }
+
+  playerKilled() {
+    this.slowMo = .8;
+    this.shake = 22;
+    this.explode(this.player.x, this.player.y, 105, 0, 'neutral');
+    window.setTimeout(() => {
+      if (this.state === 'playing') this.setState('defeat');
+    }, 620);
+  }
+
+  checkMissionComplete(dt) {
+    const objectiveTargets = this.targets.filter((t) => t.type !== 'core');
+    const targetsDone = objectiveTargets.length === 0 || objectiveTargets.every((t) => t.dead);
+    const bossDone = !this.level.boss || this.bossDefeated;
+    const coreDone = !this.level.boss || this.coreRecovered;
+    const atExtraction = this.player.y < 260;
+    if (targetsDone && bossDone && coreDone && atExtraction) {
+      this.missionCompleteTimer += dt;
+      if (this.missionCompleteTimer === dt) this.announce('EXTRACTION ZONE REACHED', 2);
+      if (this.missionCompleteTimer > 1.35) this.completeLevel();
+    } else this.missionCompleteTimer = 0;
+  }
+
+  completeLevel() {
+    if (this.state !== 'playing') return;
+    const healthBonus = Math.round((this.player.hp + this.player.armor * .5) * 20);
+    const timeBonus = Math.max(0, Math.round(12000 - this.levelStats.time * 52));
+    this.score += healthBonus + timeBonus;
+    if (this.level.reward) {
+      this.player.unlocked.add(this.level.reward);
+      this.player.equip(this.level.reward, true);
+    }
+    this.maxUnlocked = Math.max(this.maxUnlocked, this.levelIndex + 2);
+    this.highScore = Math.max(this.highScore, this.score);
+    safeStorage.set('commandoPC.maxUnlocked', Math.min(LEVELS.length, this.maxUnlocked));
+    safeStorage.set('commandoPC.highScore', this.highScore);
+    this.setState(this.levelIndex === LEVELS.length - 1 ? 'campaignVictory' : 'victory')
