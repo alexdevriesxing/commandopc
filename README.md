@@ -1,6 +1,6 @@
 # Black Horizon: Cinder Protocol
 
-**Black Horizon: Cinder Protocol** is an original top-down desert extraction shooter with a six-mission campaign, persistent field doctrines, dynamic threat escalation, and a complete production visual system. It has no runtime dependencies: gameplay renders through HTML5 Canvas, the soundtrack and SFX are synthesized with WebAudio, and every shipped visual is stored as a web-native SVG asset or atlas.
+**Black Horizon: Cinder Protocol** is an original top-down desert extraction shooter with a six-mission campaign, persistent field doctrines, dynamic threat escalation, and a complete production visual system. It has no runtime dependencies: gameplay renders through HTML5 Canvas, the soundtrack and SFX are synthesized with WebAudio, and the shipped visual pack combines web-native gameplay atlases with a cache-efficient raster presentation atlas.
 
 ![Black Horizon key art](assets/key-art.svg)
 
@@ -38,7 +38,9 @@ The story, characters, organizations, insignia, and operation are fictional.
 
 ## Production asset system
 
-The visual overhaul replaces the original procedural placeholder look with a complete atlas-based art pipeline:
+The visual overhaul replaces the original placeholder presentation with a two-layer production pipeline:
+
+### Gameplay atlases
 
 - `assets/sprites/player-atlas.svg` — 32 directional player animation frames
 - `assets/sprites/enemy-atlas.svg` — 44 enemy state frames across eleven archetypes
@@ -46,12 +48,18 @@ The visual overhaul replaces the original procedural placeholder look with a com
 - `assets/tiles/environment-atlas.svg` — six biome rows with ground, feature, vehicle, structure, and barrier tiles
 - `assets/vfx/vfx-atlas.svg` — 32 muzzle, explosion, smoke, and energy frames
 - `assets/ui/ui-atlas.svg` — difficulty, objective, mutator, doctrine, and resource icons
-- `assets/intro/comic-intro.svg` — full campaign comic introduction
-- `assets/portraits/hero.svg` — production hero portrait
-- Rebuilt logo, favicon, and key art for the **Black Horizon** identity
-- `assets/asset-manifest.json` — deterministic frame-grid metadata for the browser runtime and future ports
 
-The runtime loads these atlases asynchronously and retains the original vector renderer only as a graceful failure fallback.
+### Presentation boards
+
+A 10-region production board atlas supplies the menu key art, comic introduction, operator animation showcase, enemy roster, boss phases, arsenal and pickups, VFX showcase, complete HUD/UI language, environment kit, and final logo treatment. The WebP atlas is stored as fourteen labeled repository parts and rebuilt in memory by the loader, keeping GitHub transport and offline caching deterministic.
+
+- `src/production-raster.js` — production-board rendering and branded emergency fallbacks
+- `assets/raster/production-board-atlas-00.part` … `production-board-atlas-13.part` — encoded WebP atlas payload
+- `assets/asset-manifest.json` — exact vector grids, raster regions, dimensions, and source paths
+- `assets/intro/comic-intro.svg` and `assets/portraits/hero.svg` — scalable supporting artwork
+- Rebuilt logo, favicon, and key art for the **Black Horizon** identity
+
+Every normal and failure-state screen now remains **Black Horizon** branded. The historical renderer is no longer exposed as a user-visible fallback; lightweight Black Horizon geometry is used only when both production layers fail to decode.
 
 ## Controls
 
@@ -75,7 +83,7 @@ Touch devices receive an analog movement stick, fire, dash, and grenade controls
 npm run check
 ```
 
-Validation assembles every source chunk, parses the complete runtime, validates the SVG asset pack and atlas metadata, and verifies the campaign, difficulty, director, doctrine, mutator, weapon, and enemy systems.
+Validation assembles every source chunk, parses both production layers, reconstructs the raster atlas, validates every SVG and manifest entry, checks the branded fallback path, and verifies the campaign, difficulty, director, doctrine, mutator, weapon, and enemy systems.
 
 ## Asset policy
 

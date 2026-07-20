@@ -1,6 +1,6 @@
 {
   "title": "BLACK HORIZON: CINDER PROTOCOL",
-  "version": 1,
+  "version": 2,
   "atlases": {
     "player": {
       "src": "assets/sprites/player-atlas.svg",
@@ -53,5 +53,38 @@
     "comicIntro": "assets/intro/comic-intro.svg",
     "heroPortrait": "assets/portraits/hero.svg",
     "logo": "assets/logo.svg"
+  },
+  "rasterProduction": {
+    "size": [1536, 1328],
+    "regions": {
+      "keyArt": [0, 0, 768, 432],
+      "comicIntro": [768, 0, 768, 432],
+      "playerBoard": [0, 432, 384, 256],
+      "enemyBoard": [384, 432, 384, 256],
+      "bossBoard": [768, 432, 384, 256],
+      "itemsBoard": [1152, 432, 384, 256],
+      "vfxBoard": [0, 688, 384, 256],
+      "uiBoard": [384, 688, 384, 256],
+      "environmentBoard": [768, 688, 384, 384],
+      "logo": [0, 1072, 768, 256]
+    },
+    "mime": "image/webp",
+    "encoding": "base64-parts",
+    "parts": [
+      "assets/raster/production-board-atlas-00.part",
+      "assets/raster/production-board-atlas-01.part",
+      "assets/raster/production-board-atlas-02.part",
+      "assets/raster/production-board-atlas-03.part",
+      "assets/raster/production-board-atlas-04.part",
+      "assets/raster/production-board-atlas-05.part",
+      "assets/raster/production-board-atlas-06.part",
+      "assets/raster/production-board-atlas-07.part",
+      "assets/raster/production-board-atlas-08.part",
+      "assets/raster/production-board-atlas-09.part",
+      "assets/raster/production-board-atlas-10.part",
+      "assets/raster/production-board-atlas-11.part",
+      "assets/raster/production-board-atlas-12.part",
+      "assets/raster/production-board-atlas-13.part"
+    ]
   }
 }

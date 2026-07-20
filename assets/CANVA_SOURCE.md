@@ -1,8 +1,8 @@
-# Canva source
+# Canva source archive
 
-The visual identity for **Black Horizon: Cinder Protocol** is organized in the connected Canva workspace:
+The connected Canva workspace remains the editable brand and marketing archive for **Black Horizon: Cinder Protocol**:
 
 - Asset folder: https://www.canva.com/folder/FAHP9HlO1tQ
 - Master logo design: https://www.canva.com/d/GjjkM9t31bJeny-
 
-The browser-ready production atlases in this directory are deterministic SVG exports/build assets designed to remain editable, lightweight, dependency-free, and sharp at every game resolution.
+No Adobe tools are part of the workflow or runtime. The shipped game uses repository-owned SVG gameplay atlases plus the labeled WebP production-board atlas described in `asset-manifest.json`. All browser assets are local, dependency-free, offline-cacheable, and remain available even when the external Canva workspace is unavailable.
