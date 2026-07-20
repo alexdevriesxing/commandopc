@@ -1,0 +1,105 @@
+0, 'Inter, sans-serif');
+    const hints = [['WASD / ARROWS', 'MOVE'], ['MOUSE / J', 'AIM + FIRE'], ['SPACE', 'GRENADE'], ['SHIFT', 'DASH'], ['Q', 'SWAP WEAPON']];
+    hints.forEach((h, i) => { text(c, h[0], W / 2 - 28, H / 2 - 10 + i * 30, 13, '#f8f2df', 'right', 800, 'Inter, sans-serif'); text(c, h[1], W / 2 + 28, H / 2 - 10 + i * 30, 11, '#8ea2aa', 'left', 700, 'Inter, sans-serif'); });
+    text(c, 'P / ESC TO RESUME', W / 2, H / 2 + 135, 12, '#ff8c58', 'center', 900, 'Inter, sans-serif');
+  }
+
+  drawVictory(c) {
+    const p = PALETTES[this.level.palette];
+    const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, p.shadow); g.addColorStop(1, '#071018');
+    c.fillStyle = g; c.fillRect(0, 0, W, H); this.drawTopographic(c, p.accent);
+    c.fillStyle = 'rgba(5,12,18,.9)'; roundRect(c, 74, 64, 1132, 592, 22); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.13)'; c.lineWidth = 2; c.stroke();
+    text(c, 'MISSION COMPLETE', 112, 112, 13, '#42e8dc', 'left', 900, 'Inter, sans-serif');
+    strokeText(c, this.level.codename, 108, 168, 60, '#f8f2df', '#071018', 10);
+    text(c, this.level.region, 112, 214, 14, p.accent, 'left', 800, 'Inter, sans-serif');
+
+    const earned = this.score - this.levelStats.scoreStart;
+    const missionKills = this.kills - this.levelStats.killsStart;
+    const mins = Math.floor(this.levelStats.time / 60), secs = Math.floor(this.levelStats.time % 60);
+    const rows = [
+      ['MISSION SCORE', formatScore(earned)],
+      ['HOSTILES NEUTRALIZED', String(missionKills).padStart(3, '0')],
+      ['COMPLETION TIME', `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`],
+      ['HEALTH REMAINING', `${Math.ceil(this.player.hp)}%`],
+    ];
+    rows.forEach((r, i) => {
+      const y = 286 + i * 63;
+      c.fillStyle = i % 2 ? 'rgba(255,255,255,.025)' : 'rgba(255,255,255,.055)'; roundRect(c, 112, y, 568, 50, 9); c.fill();
+      text(c, r[0], 134, y + 25, 11, '#93a6ad', 'left', 800, 'Inter, sans-serif');
+      text(c, r[1], 658, y + 25, 22, '#f8f2df', 'right');
+    });
+
+    c.fillStyle = p.sand; roundRect(c, 742, 106, 398, 410, 16); c.fill();
+    c.strokeStyle = '#071018'; c.lineWidth = 8; c.stroke();
+    this.drawHeroPortrait(c, 941, 294, p);
+    c.fillStyle = '#071018'; c.fillRect(742, 460, 398, 56);
+    text(c, this.level.reward ? 'REQUISITION APPROVED' : 'CORE ROUTE CONFIRMED', 941, 480, 11, '#8ea2aa', 'center', 900, 'Inter, sans-serif');
+    text(c, this.level.reward ? WEAPONS[this.level.reward].name : 'FINAL APPROACH', 941, 503, 17, this.level.reward ? '#42e8dc' : '#ff6b2c', 'center');
+
+    text(c, `CAMPAIGN SCORE  ${formatScore(this.score)}`, 112, 586, 18, '#ffd45a', 'left');
+    this.button(c, 742, 548, 398, 58, 'CONTINUE CAMPAIGN', () => this.startLevel(this.levelIndex + 1), true, '#ff6b2c');
+  }
+
+  drawHeroPortrait(c, x, y, p) {
+    c.save(); c.translate(x, y);
+    c.fillStyle = p.sand2; c.beginPath(); c.arc(0, 0, 150, 0, TAU); c.fill();
+    c.fillStyle = 'rgba(7,16,24,.18)'; for (let i = 0; i < 22; i++) { c.beginPath(); c.arc(rand(-150,150), rand(-150,150), 3, 0, TAU); c.fill(); }
+    c.strokeStyle = '#071018'; c.lineWidth = 14;
+    c.fillStyle = '#416b5a'; roundRect(c, -82, -10, 164, 175, 42); c.fill(); c.stroke();
+    c.fillStyle = '#d8a076'; c.beginPath(); c.arc(0, -80, 58, 0, TAU); c.fill(); c.stroke();
+    c.fillStyle = '#1b282d'; c.beginPath(); c.arc(0, -95, 64, Math.PI, TAU); c.fill();
+    c.fillStyle = '#42e8dc'; c.fillRect(-44, -88, 88, 10);
+    c.strokeStyle = '#071018'; c.lineWidth = 8; c.beginPath(); c.moveTo(-22, -69); c.lineTo(-5, -67); c.moveTo(22, -69); c.lineTo(5, -67); c.stroke();
+    c.beginPath(); c.moveTo(-18, -42); c.quadraticCurveTo(0, -30, 20, -42); c.stroke();
+    c.restore();
+  }
+
+  drawCampaignVictory(c) {
+    const t = clamp(this.stateTime / 1.1, 0, 1);
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#102a36'); g.addColorStop(.56, '#d66b3e'); g.addColorStop(1, '#f0c878');
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#172932'; c.beginPath(); c.moveTo(0, 470); c.lineTo(170, 270); c.lineTo(330, 440); c.lineTo(520, 220); c.lineTo(730, 460); c.lineTo(920, 250); c.lineTo(1100, 450); c.lineTo(1280, 300); c.lineTo(1280, H); c.lineTo(0, H); c.closePath(); c.fill();
+    c.fillStyle = '#d9a85e'; c.beginPath(); c.moveTo(0, 540); c.quadraticCurveTo(350, 440, 620, 560); c.quadraticCurveTo(940, 670, 1280, 500); c.lineTo(1280, H); c.lineTo(0, H); c.closePath(); c.fill();
+
+    c.save(); c.translate(W / 2, H / 2 + (1 - easeOutBack(t)) * 100);
+    c.fillStyle = 'rgba(5,12,18,.9)'; roundRect(c, -430, -245, 860, 490, 22); c.fill();
+    c.strokeStyle = '#42e8dc'; c.lineWidth = 3; c.stroke();
+    text(c, 'OPERATION CINDER', 0, -190, 14, '#42e8dc', 'center', 900, 'Inter, sans-serif');
+    strokeText(c, 'CORE SECURED', 0, -125, 64, '#f8f2df', '#071018', 12, 'center');
+    c.fillStyle = '#ff6b2c'; c.fillRect(-220, -78, 440, 9);
+    this.wrapText(c, 'Containment teams received the plutonium core intact. The Cinder Directorate’s mountain network is offline, and the missing operators are coming home.', 0, -42, 650, 20, 31, '#d2dcdb', false, 'center');
+    text(c, `FINAL SCORE  ${formatScore(this.score)}`, 0, 90, 28, '#ffd45a', 'center');
+    text(c, `TOTAL HOSTILES  ${this.kills}`, 0, 132, 13, '#98abb2', 'center', 800, 'Inter, sans-serif');
+    text(c, 'RANGER ONE // MISSION ACCOMPLISHED', 0, 184, 12, '#ff9b65', 'center', 900, 'Inter, sans-serif');
+    c.restore();
+    this.button(c, W / 2 - 190, H - 92, 380, 54, 'RETURN TO MAIN MENU', () => this.setState('menu'), true, '#42e8dc');
+  }
+
+  drawDefeat(c) {
+    c.fillStyle = '#120d12'; c.fillRect(0, 0, W, H);
+    const g = c.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, 480); g.addColorStop(0, 'rgba(130,35,35,.42)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0,0,W,H);
+    for (let i = 0; i < 16; i++) { c.strokeStyle = `rgba(255,65,45,${.05 + i * .007})`; c.lineWidth = 2; c.beginPath(); c.moveTo(rand(W), H); c.lineTo(rand(W), 0); c.stroke(); }
+    c.fillStyle = 'rgba(5,12,18,.92)'; roundRect(c, W / 2 - 370, H / 2 - 210, 740, 420, 20); c.fill();
+    c.strokeStyle = '#ff4d43'; c.lineWidth = 3; c.stroke();
+    text(c, 'SIGNAL LOST', W / 2, H / 2 - 145, 13, '#ff7c69', 'center', 900, 'Inter, sans-serif');
+    strokeText(c, 'RANGER DOWN', W / 2, H / 2 - 82, 60, '#f8f2df', '#071018', 12, 'center');
+    this.wrapText(c, 'The core is still moving. Re-enter the operation from the last insertion point.', W / 2, H / 2 - 28, 540, 19, 30, '#b9c6c9', false, 'center');
+    text(c, `MISSION SCORE  ${formatScore(this.score - this.levelStats.scoreStart)}`, W / 2, H / 2 + 68, 18, '#ffd45a', 'center');
+    this.button(c, W / 2 - 230, H / 2 + 118, 460, 58, 'REDEPLOY', () => { this.score = this.levelStats.scoreStart; this.kills = this.levelStats.killsStart; this.player.hp = 100; this.startLevel(this.levelIndex); }, true, '#ff4d43');
+    text(c, 'ESC — ABORT TO MENU', W / 2, H / 2 + 190, 10, '#7d8f96', 'center', 800, 'Inter, sans-serif');
+  }
+
+  drawMissionSelect(c) {
+    c.fillStyle = '#071018'; c.fillRect(0, 0, W, H); this.drawTopographic(c, '#42e8dc');
+    text(c, 'MISSION SELECT', 64, 62, 36, '#f8f2df');
+    text(c, 'Completed progress is saved locally.', 66, 96, 12, '#8ea2aa', 'left', 700, 'Inter, sans-serif');
+    LEVELS.forEach((level, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const x = 64 + col * 580, y = 132 + row * 168, w = 548, h = 142;
+      const unlocked = i < this.maxUnlocked;
+      c.fillStyle = unlocked ? 'rgba(255,255,255,.045)' : 'rgba(255,255,255,.018)'; roundRect(c, x, y, w, h, 14); c.fill();
+      c.strokeStyle = unlocked ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.06)'; c.lineWidth = 2; c.stroke();
+      c.fillStyle = unlocked ? PALETTES[level.palette].sand : '#263039'; roundRect(c, x + 14, y + 14, 126, h - 28, 10); c.fill();
+      this.drawMissionBadge(c, x + 77, y + 71, level, unlocked);
+      text(c, `MISSION ${String(level.id).padStart(2,'0')}`, x + 160, y + 28, 10
