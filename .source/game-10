@@ -1,0 +1,126 @@
+ath(); c.moveTo(0, 530); c.lineTo(760, 420); c.lineTo(760, 584); c.lineTo(0, 584); c.closePath(); c.fill();
+      c.fillStyle = 'rgba(7,16,24,.22)'; for (let i = 0; i < 18; i++) { c.beginPath(); c.arc(rand(0, w), rand(0, h), 3, 0, TAU); c.fill(); }
+      this.comicCaption(c, 34, 32, 310, 118, 'RANGER ONE\nREFUSED TO TURN BACK.');
+    } else if (scene === 'core') {
+      c.fillStyle = '#101e29'; c.fillRect(0, 0, w, h);
+      c.strokeStyle = '#284454'; c.lineWidth = 8;
+      for (let i = 0; i < 10; i++) { c.beginPath(); c.moveTo(i * 90, 0); c.lineTo(i * 90 - 120, h); c.stroke(); }
+      c.save(); c.translate(380, 290); c.rotate(-.08);
+      c.fillStyle = '#143e41'; c.strokeStyle = '#071018'; c.lineWidth = 16; roundRect(c, -190, -112, 380, 224, 22); c.fill(); c.stroke();
+      c.fillStyle = '#42e8dc'; c.shadowColor = '#42e8dc'; c.shadowBlur = 45; c.beginPath(); c.arc(0, 0, 66, 0, TAU); c.fill();
+      c.shadowBlur = 0; c.fillStyle = '#071018'; c.font = '900 72px Arial Black'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('☢', 0, 3);
+      c.restore();
+      c.fillStyle = 'rgba(255,78,50,.85)'; c.fillRect(0, 510, w, 74);
+      text(c, 'CONTAINMENT: 06:00:00', 380, 548, 31, '#fff1d8', 'center');
+    } else {
+      this.drawMountains(c, w, h, '#1e303a', '#8b4d3e');
+      c.fillStyle = '#d59b56'; c.fillRect(0, 360, w, 224);
+      this.drawComicSoldier(c, 260, 340, 1.5, '#416d5c');
+      for (let i = 0; i < 8; i++) this.drawEnemySilhouette(c, 500 + (i % 4) * 60, 300 + Math.floor(i / 4) * 115, .55);
+      c.strokeStyle = '#ffdc69'; c.lineWidth = 9; for (let i = 0; i < 7; i++) { c.beginPath(); c.moveTo(335, 275); c.lineTo(480 + i * 36, 190 + (i % 2) * 75); c.stroke(); }
+      this.comicCaption(c, 32, 35, 320, 122, 'ONE ROUTE FORWARD.\nNO ROOM FOR FAILURE.');
+    }
+    c.restore();
+  }
+
+  drawMountains(c, w, h, far, near) {
+    c.fillStyle = far; c.beginPath(); c.moveTo(0, 300); c.lineTo(100, 130); c.lineTo(210, 260); c.lineTo(330, 90); c.lineTo(470, 260); c.lineTo(610, 110); c.lineTo(w, 250); c.lineTo(w, h); c.lineTo(0, h); c.closePath(); c.fill();
+    c.fillStyle = near; c.beginPath(); c.moveTo(0, 390); c.lineTo(120, 250); c.lineTo(240, 360); c.lineTo(390, 210); c.lineTo(560, 350); c.lineTo(690, 250); c.lineTo(w, 340); c.lineTo(w, h); c.lineTo(0, h); c.closePath(); c.fill();
+  }
+
+  drawComicSoldier(c, x, y, s, color) {
+    c.save(); c.translate(x, y); c.scale(s, s); c.strokeStyle = '#071018'; c.lineWidth = 8; c.lineCap = 'round';
+    c.strokeStyle = '#182126'; c.lineWidth = 13; c.beginPath(); c.moveTo(-14, 30); c.lineTo(-22, 75); c.moveTo(14, 30); c.lineTo(22, 75); c.stroke();
+    c.fillStyle = color; c.strokeStyle = '#071018'; c.lineWidth = 8; roundRect(c, -32, -36, 64, 82, 16); c.fill(); c.stroke();
+    c.fillStyle = '#d39b72'; c.beginPath(); c.arc(0, -54, 23, 0, TAU); c.fill(); c.stroke();
+    c.fillStyle = '#1e292e'; c.beginPath(); c.arc(0, -61, 25, Math.PI, TAU); c.fill();
+    c.strokeStyle = '#d39b72'; c.lineWidth = 12; c.beginPath(); c.moveTo(-26, -10); c.lineTo(-4, -40); c.moveTo(26, -10); c.lineTo(5, -40); c.stroke();
+    c.strokeStyle = '#1b2428'; c.lineWidth = 10; c.beginPath(); c.moveTo(2, -34); c.lineTo(0, -92); c.stroke();
+    c.restore();
+  }
+
+  drawEnemySilhouette(c, x, y, s) {
+    c.save(); c.translate(x, y); c.scale(s, s); c.fillStyle = '#071018'; c.beginPath(); c.arc(0, -36, 18, 0, TAU); c.fill(); roundRect(c, -22, -20, 44, 64, 9); c.fill(); c.strokeStyle = '#071018'; c.lineWidth = 12; c.beginPath(); c.moveTo(-10, 38); c.lineTo(-16, 76); c.moveTo(10, 38); c.lineTo(16, 76); c.stroke(); c.restore();
+  }
+
+  comicCaption(c, x, y, w, h, value) {
+    c.fillStyle = '#f5ecd8'; c.strokeStyle = '#071018'; c.lineWidth = 8; roundRect(c, x, y, w, h, 4); c.fill(); c.stroke();
+    const lines = value.split('\n');
+    lines.forEach((line, i) => text(c, line, x + 18, y + 34 + i * 39, 23, '#071018', 'left'));
+  }
+
+  drawBriefing(c) {
+    const p = PALETTES[this.level.palette];
+    const g = c.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, '#071018'); g.addColorStop(.6, p.shadow); g.addColorStop(1, p.sand2);
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    this.drawTopographic(c, p.accent);
+
+    c.fillStyle = 'rgba(5,12,18,.84)'; roundRect(c, 62, 54, 1156, 612, 20); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.13)'; c.lineWidth = 2; c.stroke();
+    text(c, `MISSION ${String(this.level.id).padStart(2, '0')}`, 94, 94, 13, '#42e8dc', 'left', 900, 'Inter, sans-serif');
+    strokeText(c, this.level.codename, 92, 154, 58, '#f8f2df', '#071018', 10);
+    text(c, this.level.region, 95, 205, 15, p.accent, 'left', 800, 'Inter, sans-serif');
+
+    c.fillStyle = p.sand; c.globalAlpha = .92; roundRect(c, 760, 88, 410, 408, 16); c.fill(); c.globalAlpha = 1;
+    this.drawMissionMap(c, 780, 108, 370, 368, p);
+
+    c.fillStyle = 'rgba(255,255,255,.06)'; roundRect(c, 94, 258, 600, 110, 14); c.fill();
+    text(c, 'PRIMARY OBJECTIVE', 118, 286, 11, '#8ca0a8', 'left', 800, 'Inter, sans-serif');
+    this.wrapText(c, this.level.objective, 118, 313, 550, 24, 30, '#fff4d7', true);
+
+    const enemyList = [...new Set(this.level.enemies)].slice(0, 5);
+    text(c, 'THREAT PROFILE', 96, 410, 11, '#8ca0a8', 'left', 800, 'Inter, sans-serif');
+    enemyList.forEach((e, i) => {
+      const x = 96 + i * 124;
+      c.fillStyle = 'rgba(255,255,255,.05)'; roundRect(c, x, 432, 108, 92, 10); c.fill();
+      this.drawEnemyIcon(c, x + 54, 462, e);
+      text(c, ENEMY_TYPES[e].name, x + 54, 505, 9, '#d8e0e0', 'center', 800, 'Inter, sans-serif');
+    });
+
+    if (this.level.reward) {
+      text(c, 'FIELD REQUISITION', 760, 538, 11, '#8ca0a8', 'left', 800, 'Inter, sans-serif');
+      text(c, WEAPONS[this.level.reward].name, 760, 570, 23, '#42e8dc');
+      text(c, 'Unlocked on mission completion', 760, 598, 12, '#b8c7ca', 'left', 600, 'Inter, sans-serif');
+    } else {
+      text(c, 'FINAL DIRECTIVE', 760, 538, 11, '#8ca0a8', 'left', 800, 'Inter, sans-serif');
+      text(c, 'RECOVER THE CORE', 760, 570, 23, '#ff6b2c');
+      text(c, 'Containment team standing by', 760, 598, 12, '#b8c7ca', 'left', 600, 'Inter, sans-serif');
+    }
+    text(c, 'PRESS ENTER / CLICK TO DEPLOY', W / 2, 630, 13, '#f8f2df', 'center', 900, 'Inter, sans-serif');
+  }
+
+  drawTopographic(c, color) {
+    c.save(); c.globalAlpha = .1; c.strokeStyle = color; c.lineWidth = 2;
+    for (let y = -100; y < H + 100; y += 58) {
+      c.beginPath();
+      for (let x = -40; x < W + 40; x += 20) {
+        const yy = y + Math.sin(x * .015 + y * .007) * 20 + Math.sin(x * .034) * 7;
+        if (x === -40) c.moveTo(x, yy); else c.lineTo(x, yy);
+      }
+      c.stroke();
+    }
+    c.restore();
+  }
+
+  drawMissionMap(c, x, y, w, h, p) {
+    c.save(); c.translate(x, y); c.fillStyle = p.sand2; roundRect(c, 0, 0, w, h, 10); c.fill();
+    c.strokeStyle = 'rgba(7,16,24,.25)'; c.lineWidth = 1;
+    for (let i = 0; i < 12; i++) { c.beginPath(); c.moveTo(0, i * 32); c.lineTo(w, i * 32); c.stroke(); }
+    for (let i = 0; i < 12; i++) { c.beginPath(); c.moveTo(i * 34, 0); c.lineTo(i * 34, h); c.stroke(); }
+    c.strokeStyle = '#42e8dc'; c.lineWidth = 6; c.setLineDash([14, 12]); c.beginPath();
+    c.moveTo(w * .52, h - 24);
+    for (let i = 0; i < 8; i++) c.lineTo(w * (.42 + Math.sin(i * 1.6) * .18), h - 24 - i * 44);
+    c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#ff6b2c'; c.beginPath(); c.arc(w * .42, 26, 12, 0, TAU); c.fill();
+    c.strokeStyle = '#071018'; c.lineWidth = 4; c.stroke();
+    text(c, 'LZ', w * .52, h - 14, 10, '#071018', 'center');
+    text(c, 'OBJ', w * .42, 51, 10, '#071018', 'center');
+    c.restore();
+  }
+
+  drawEnemyIcon(c, x, y, key) {
+    const t = ENEMY_TYPES[key];
+    c.save(); c.translate(x, y); c.fillStyle = t.color; c.strokeStyle = '#071018'; c.lineWidth = 4;
+    if (t.flying) { c.beginPath(); c.moveTo(0, -18); c.lineTo(24, 0); c.lineTo(0, 17); c.lineTo(-24, 0); c.closePath(); c.fill(); c.stroke(); }
+    else { roundRect(c, -15, -16, 30, 34, 7); c.fill(); c.stroke(); c.fillStyle = '#b9896b'; c.beginPa
