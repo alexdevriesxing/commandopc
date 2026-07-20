@@ -1,0 +1,178 @@
+); c.translate(this.x, sy + bob); c.rotate(this.angle + Math.PI / 2);
+    c.fillStyle = 'rgba(0,0,0,.24)'; c.beginPath(); c.ellipse(0, this.flying ? 20 - bob : 18, this.radius * 1.05, this.radius * .42, 0, 0, TAU); c.fill();
+
+    if (this.flying) {
+      c.fillStyle = this.hitFlash > 0 ? '#fff' : this.color; c.strokeStyle = '#071018'; c.lineWidth = 5;
+      c.beginPath(); c.moveTo(0, -23); c.lineTo(25, 0); c.lineTo(13, 19); c.lineTo(-13, 19); c.lineTo(-25, 0); c.closePath(); c.fill(); c.stroke();
+      c.fillStyle = '#85fff5'; c.beginPath(); c.arc(0, -2, 7, 0, TAU); c.fill();
+      c.strokeStyle = '#a7eef2'; c.lineWidth = 4; c.beginPath(); c.moveTo(-30, 0); c.lineTo(-13, 0); c.moveTo(30, 0); c.lineTo(13, 0); c.stroke();
+    } else if (this.typeKey === 'boss') {
+      c.strokeStyle = '#15191c'; c.lineWidth = 14; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(-16, 18); c.lineTo(-20 + leg, 37); c.moveTo(16, 18); c.lineTo(20 - leg, 37); c.stroke();
+      c.fillStyle = this.hitFlash > 0 ? '#fff' : '#7f3036'; c.strokeStyle = '#071018'; c.lineWidth = 7;
+      roundRect(c, -34, -35, 68, 66, 17); c.fill(); c.stroke();
+      c.fillStyle = '#2f3639'; c.fillRect(-39, -18, 78, 18);
+      c.fillStyle = '#ff4b35'; c.fillRect(-29, -12, 58, 5);
+      c.fillStyle = '#c99672'; c.beginPath(); c.arc(0, -43, 18, 0, TAU); c.fill(); c.stroke();
+      c.fillStyle = '#1c2022'; c.beginPath(); c.arc(0, -49, 19, Math.PI, TAU); c.fill();
+      c.strokeStyle = '#24282b'; c.lineWidth = 10; c.beginPath(); c.moveTo(-19, -12); c.lineTo(-7, -39); c.moveTo(19, -12); c.lineTo(7, -39); c.stroke();
+      c.fillStyle = '#22282b'; c.fillRect(-7, -65, 14, 36);
+    } else {
+      c.strokeStyle = '#182026'; c.lineWidth = 9; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(-7, 12); c.lineTo(-9 + leg, 27); c.moveTo(7, 12); c.lineTo(9 - leg, 27); c.stroke();
+      c.fillStyle = this.hitFlash > 0 ? '#fff' : this.color; c.strokeStyle = '#071018'; c.lineWidth = 5;
+      roundRect(c, -this.radius * .72, -18, this.radius * 1.44, 36, 8); c.fill(); c.stroke();
+      c.fillStyle = '#bd896b'; c.beginPath(); c.arc(0, -25, 10, 0, TAU); c.fill(); c.stroke();
+      c.fillStyle = '#20262a'; c.beginPath(); c.arc(0, -29, 11, Math.PI, TAU); c.fill();
+      c.strokeStyle = '#bc896b'; c.lineWidth = 7; c.beginPath(); c.moveTo(-11, -5); c.lineTo(-4, -20); c.moveTo(11, -5); c.lineTo(4, -20); c.stroke();
+      c.strokeStyle = '#20262a'; c.lineWidth = 6; c.beginPath(); c.moveTo(0, -15); c.lineTo(0, -42); c.stroke();
+      if (this.behavior === 'shield') {
+        c.fillStyle = '#31545d'; c.strokeStyle = '#071018'; c.lineWidth = 5;
+        roundRect(c, -24, -49, 48, 17, 6); c.fill(); c.stroke();
+        c.fillStyle = '#66d8e5'; c.fillRect(-15, -44, 30, 4);
+      }
+      if (this.behavior === 'heavy') {
+        c.fillStyle = '#242a2d'; c.fillRect(-23, -10, 46, 20);
+        c.fillStyle = '#c74a3f'; c.fillRect(-17, -4, 34, 4);
+      }
+    }
+    c.restore();
+
+    if (this.telegraph > 0) {
+      c.save(); c.globalAlpha = clamp(1 - this.telegraph, .25, .85); c.strokeStyle = '#ff3f3f'; c.lineWidth = 2; c.setLineDash([10, 9]);
+      c.beginPath(); c.moveTo(this.x, sy); c.lineTo(game.player.x, game.player.y - cameraY); c.stroke(); c.restore();
+    }
+
+    if (this.hp < this.maxHp && this.typeKey !== 'boss') {
+      const w = this.radius * 2.2;
+      c.fillStyle = 'rgba(5,10,14,.7)'; c.fillRect(this.x - w / 2, sy - this.radius - 25, w, 6);
+      c.fillStyle = '#ff5b45'; c.fillRect(this.x - w / 2, sy - this.radius - 25, w * clamp(this.hp / this.maxHp, 0, 1), 6);
+    }
+  }
+
+  drawDeath(c, sy) {
+    const t = clamp(this.deathTimer / 1.2, 0, 1);
+    c.save(); c.translate(this.x, sy + t * 24); c.rotate(Math.sin(t * Math.PI) * 1.2 * this.orbitDir); c.globalAlpha = 1 - clamp((t - .58) / .42, 0, 1);
+    if (this.flying) {
+      c.fillStyle = '#384c50'; c.strokeStyle = '#071018'; c.lineWidth = 5;
+      c.beginPath(); c.moveTo(-24, 0); c.lineTo(0, -14); c.lineTo(24, 0); c.lineTo(0, 18); c.closePath(); c.fill(); c.stroke();
+      c.strokeStyle = '#ff7a3f'; c.lineWidth = 5; c.beginPath(); c.moveTo(-10, -8); c.lineTo(8, 9); c.moveTo(10, -8); c.lineTo(-8, 9); c.stroke();
+    } else {
+      c.fillStyle = this.color; c.strokeStyle = '#071018'; c.lineWidth = 5;
+      roundRect(c, -this.radius, -14, this.radius * 2, 28, 8); c.fill(); c.stroke();
+      c.fillStyle = '#bd896b'; c.beginPath(); c.arc(0, -18, 10, 0, TAU); c.fill(); c.stroke();
+    }
+    c.restore();
+  }
+}
+
+function segmentCircle(x1, y1, x2, y2, cx, cy, r) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const l2 = dx * dx + dy * dy || 1;
+  const t = clamp(((cx - x1) * dx + (cy - y1) * dy) / l2, 0, 1);
+  const px = x1 + t * dx, py = y1 + t * dy;
+  return (px - cx) ** 2 + (py - cy) ** 2 <= r * r;
+}
+
+class Game {
+  constructor() {
+    this.state = 'menu';
+    this.time = 0;
+    this.lastTime = performance.now();
+    this.player = new Player();
+    this.levelIndex = 0;
+    this.level = LEVELS[0];
+    this.cameraY = 0;
+    this.targetCameraY = 0;
+    this.projectiles = [];
+    this.enemies = [];
+    this.particles = [];
+    this.decals = [];
+    this.pickups = [];
+    this.floating = [];
+    this.props = [];
+    this.targets = [];
+    this.spawnPlan = [];
+    this.spawnCursor = 0;
+    this.score = 0;
+    this.kills = 0;
+    this.shots = 0;
+    this.combo = 1;
+    this.comboHits = 0;
+    this.comboTimer = 0;
+    this.shake = 0;
+    this.flash = 0;
+    this.slowMo = 0;
+    this.stateTime = 0;
+    this.introIndex = 0;
+    this.menuIndex = 0;
+    this.menuItems = ['START CAMPAIGN', 'MISSION SELECT', 'HOW TO PLAY', 'CREDITS'];
+    this.screenButtons = [];
+    this.announceText = '';
+    this.announceTimer = 0;
+    this.levelStats = { scoreStart: 0, killsStart: 0, time: 0, damage: 0 };
+    this.bossDefeated = false;
+    this.coreRecovered = false;
+    this.missionCompleteTimer = 0;
+    this.weatherParticles = [];
+    this.ambientTimer = 0;
+    this.highScore = Number(safeStorage.get('commandoPC.highScore', '0'));
+    this.maxUnlocked = Number(safeStorage.get('commandoPC.maxUnlocked', '1'));
+    this.keyArt = new Image();
+    this.keyArt.src = 'assets/key-art.svg';
+    this.bindUI();
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    requestAnimationFrame((t) => this.loop(t));
+  }
+
+  bindUI() {
+    canvas.addEventListener('pointerup', () => {
+      const hit = this.screenButtons.find((b) => input.mouse.x >= b.x && input.mouse.x <= b.x + b.w && input.mouse.y >= b.y && input.mouse.y <= b.y + b.h);
+      if (hit) { audio.sfx('confirm'); hit.action(); }
+      else if (this.state === 'intro') this.advanceIntro();
+    });
+    window.addEventListener('blur', () => {
+      if (this.state === 'playing') this.setState('paused');
+    });
+  }
+
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+  }
+
+  setState(state) {
+    this.state = state;
+    this.stateTime = 0;
+    modeStatus.textContent = state.replace(/([A-Z])/g, ' $1').toUpperCase();
+    if (state === 'menu') audio.setPattern('menu');
+    if (state === 'intro') audio.setPattern('night');
+    if (state === 'paused') audio.setPattern('silence');
+    if (state === 'defeat') { audio.setPattern('silence'); audio.sfx('defeat'); }
+    if (state === 'victory' || state === 'campaignVictory') { audio.setPattern('menu'); audio.sfx('victory'); }
+    canvas.focus();
+  }
+
+  startCampaign(skipIntro = false) {
+    this.score = 0;
+    this.kills = 0;
+    this.player.resetForCampaign();
+    this.levelIndex = 0;
+    this.introIndex = 0;
+    if (skipIntro) this.startLevel(0);
+    else this.setState('intro');
+  }
+
+  startLevel(index) {
+    this.levelIndex = clamp(index, 0, LEVELS.length - 1);
+    this.level = LEVELS[this.levelIndex];
+    this.projectiles.length = 0;
+    this.enemies.length = 0;
+    this.particles.length = 0;
+    this.decals.length = 0;
+    this.pickups.length = 0;
+    thi
