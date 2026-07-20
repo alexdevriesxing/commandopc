@@ -1,0 +1,230 @@
+, 0, 0, 0, this.size);
+      g.addColorStop(0, 'rgba(12,8,8,.58)'); g.addColorStop(.45, 'rgba(24,15,15,.32)'); g.addColorStop(1, 'rgba(24,15,15,0)');
+      c.fillStyle = g; c.beginPath(); c.arc(0, 0, this.size, 0, TAU); c.fill();
+    } else {
+      c.beginPath();
+      for (let i = 0; i < 12; i++) {
+        const a = i / 12 * TAU;
+        const r = this.size * rand(.45, 1);
+        const px = Math.cos(a) * r, py = Math.sin(a) * r * .7;
+        if (i === 0) c.moveTo(px, py); else c.lineTo(px, py);
+      }
+      c.closePath(); c.fill();
+    }
+    c.restore();
+  }
+}
+
+class Projectile {
+  constructor(x, y, angle, speed, damage, team, opts = {}) {
+    this.x = x; this.y = y; this.prevX = x; this.prevY = y;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.angle = angle;
+    this.damage = damage;
+    this.team = team;
+    this.life = opts.life ?? 1.4;
+    this.radius = opts.radius ?? 4;
+    this.color = opts.color ?? (team === 'player' ? '#ffe29a' : '#ff6b4d');
+    this.explosive = opts.explosive ?? false;
+    this.grenade = opts.grenade ?? false;
+    this.pierce = opts.pierce ?? 0;
+    this.hit = new Set();
+    this.trail = opts.trail ?? true;
+    this.spin = rand(-5, 5);
+    this.rotation = 0;
+    this.bounces = opts.bounces ?? 0;
+  }
+
+  update(dt, game) {
+    this.life -= dt;
+    this.prevX = this.x; this.prevY = this.y;
+    if (this.grenade) {
+      this.vx *= Math.pow(0.7, dt);
+      this.vy *= Math.pow(0.7, dt);
+      this.rotation += this.spin * dt;
+    }
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+
+    if (this.trail && Math.random() < dt * 48) {
+      game.particles.push(new Particle(this.x, this.y, {
+        vx: -this.vx * 0.05 + rand(-18, 18), vy: -this.vy * 0.05 + rand(-18, 18),
+        life: rand(.08, .18), size: this.explosive ? 5 : 2.4, color: this.color, glow: 8,
+      }));
+    }
+
+    if (this.x < 12 || this.x > W - 12) {
+      if (this.bounces > 0) { this.vx *= -0.75; this.bounces--; }
+      else this.life = 0;
+    }
+
+    if (this.life <= 0) {
+      if (this.explosive || this.grenade) game.explode(this.x, this.y, this.team === 'player' ? 138 : 92, this.damage, this.team);
+      return false;
+    }
+    return true;
+  }
+
+  draw(c, cameraY) {
+    const y = this.y - cameraY;
+    const py = this.prevY - cameraY;
+    c.save();
+    c.strokeStyle = this.color;
+    c.lineWidth = this.explosive ? 6 : 3;
+    c.lineCap = 'round';
+    c.shadowColor = this.color; c.shadowBlur = this.explosive ? 16 : 8;
+    c.beginPath(); c.moveTo(this.prevX, py); c.lineTo(this.x, y); c.stroke();
+    if (this.grenade) {
+      c.translate(this.x, y); c.rotate(this.rotation);
+      c.fillStyle = '#23332f'; c.strokeStyle = '#071018'; c.lineWidth = 3;
+      c.fillRect(-7, -5, 14, 10); c.strokeRect(-7, -5, 14, 10);
+    }
+    c.restore();
+  }
+}
+
+class Pickup {
+  constructor(x, y, type, value = null) {
+    this.x = x; this.y = y; this.type = type; this.value = value;
+    this.life = 18; this.phase = rand(TAU); this.radius = 24;
+  }
+  update(dt) { this.life -= dt; this.phase += dt * 3.2; return this.life > 0; }
+  draw(c, cameraY) {
+    const y = this.y - cameraY + Math.sin(this.phase) * 5;
+    c.save(); c.translate(this.x, y);
+    c.shadowColor = this.type === 'weapon' ? '#42e8dc' : this.type === 'health' ? '#ff6258' : '#ffd45a';
+    c.shadowBlur = 20;
+    c.fillStyle = '#09151b'; c.strokeStyle = c.shadowColor; c.lineWidth = 3;
+    roundRect(c, -24, -20, 48, 40, 9); c.fill(); c.stroke();
+    if (this.type === 'health') {
+      c.fillStyle = '#ff6258'; c.fillRect(-5, -13, 10, 26); c.fillRect(-13, -5, 26, 10);
+    } else if (this.type === 'armor') {
+      c.fillStyle = '#6fe8ff'; c.beginPath(); c.moveTo(0, -14); c.lineTo(14, -8); c.lineTo(10, 9); c.lineTo(0, 16); c.lineTo(-10, 9); c.lineTo(-14, -8); c.closePath(); c.fill();
+    } else if (this.type === 'grenade') {
+      c.fillStyle = '#b2c56b'; c.beginPath(); c.arc(0, 3, 11, 0, TAU); c.fill(); c.fillRect(-4, -13, 8, 7);
+    } else if (this.type === 'weapon') {
+      c.strokeStyle = '#42e8dc'; c.lineWidth = 7; c.lineCap = 'round'; c.beginPath(); c.moveTo(-13, 7); c.lineTo(12, -7); c.stroke();
+      c.lineWidth = 4; c.beginPath(); c.moveTo(2, 0); c.lineTo(9, 10); c.stroke();
+    } else {
+      text(c, 'AMMO', 0, 1, 10, '#ffd45a', 'center');
+    }
+    c.restore();
+  }
+}
+
+class Player {
+  constructor() {
+    this.x = W / 2;
+    this.y = 620;
+    this.radius = 21;
+    this.speed = 250;
+    this.hp = 100;
+    this.maxHp = 100;
+    this.armor = 40;
+    this.maxArmor = 100;
+    this.grenades = 4;
+    this.weaponKey = 'rifle';
+    this.weapon = { ...WEAPONS.rifle, ammo: WEAPONS.rifle.mag, reserveAmmo: WEAPONS.rifle.reserve };
+    this.unlocked = new Set(['rifle']);
+    this.fireTimer = 0;
+    this.reloadTimer = 0;
+    this.invuln = 0;
+    this.dashTimer = 0;
+    this.dashCooldown = 0;
+    this.dashDir = { x: 0, y: -1 };
+    this.aim = -Math.PI / 2;
+    this.walk = 0;
+    this.muzzle = 0;
+    this.dead = false;
+    this.hurtFlash = 0;
+  }
+
+  resetForCampaign() {
+    this.hp = this.maxHp;
+    this.armor = 40;
+    this.grenades = 4;
+    this.unlocked = new Set(['rifle']);
+    this.equip('rifle', true);
+    this.dead = false;
+  }
+
+  resetPosition(game) {
+    this.x = W / 2;
+    this.y = game.cameraY + H - 115;
+    this.hp = Math.min(this.maxHp, this.hp + 38);
+    this.armor = Math.min(this.maxArmor, this.armor + 22);
+    this.grenades = Math.max(this.grenades, 3);
+    this.invuln = 1.2;
+    this.dead = false;
+  }
+
+  equip(key, refill = false) {
+    if (!WEAPONS[key]) return;
+    const old = this.weaponKey === key ? this.weapon : null;
+    this.weaponKey = key;
+    this.unlocked.add(key);
+    this.weapon = {
+      ...WEAPONS[key],
+      ammo: refill || !old ? WEAPONS[key].mag : Math.min(old.ammo, WEAPONS[key].mag),
+      reserveAmmo: refill || !old ? WEAPONS[key].reserve : Math.min(old.reserveAmmo, WEAPONS[key].reserve),
+    };
+    this.reloadTimer = 0;
+  }
+
+  cycleWeapon() {
+    const keys = Object.keys(WEAPONS).filter((k) => this.unlocked.has(k));
+    const i = keys.indexOf(this.weaponKey);
+    this.equip(keys[(i + 1) % keys.length]);
+    audio.sfx('ui');
+  }
+
+  update(dt, game) {
+    this.fireTimer -= dt;
+    this.invuln -= dt;
+    this.dashCooldown -= dt;
+    this.muzzle -= dt;
+    this.hurtFlash -= dt;
+
+    if (this.reloadTimer > 0) {
+      this.reloadTimer -= dt;
+      if (this.reloadTimer <= 0) {
+        const need = this.weapon.mag - this.weapon.ammo;
+        const taken = Math.min(need, this.weapon.reserveAmmo);
+        this.weapon.ammo += taken;
+        this.weapon.reserveAmmo -= taken;
+        audio.sfx('reload');
+      }
+    }
+
+    const move = input.axis();
+    const touch = Math.hypot(input.touchMove.x, input.touchMove.y) > 0.15;
+    if (touch) {
+      const nearest = game.enemies.filter((e) => !e.dead).sort((a, b) => dist2(this, a) - dist2(this, b))[0];
+      if (nearest) this.aim = angleTo(this, nearest);
+    } else {
+      const worldMouse = { x: input.mouse.x, y: input.mouse.y + game.cameraY };
+      this.aim = angleTo(this, worldMouse);
+    }
+
+    const wantsDash = input.consume('ShiftLeft') || input.consume('ShiftRight') || input.touchDash;
+    if (wantsDash && this.dashCooldown <= 0 && (Math.abs(move.x) + Math.abs(move.y) > .1)) {
+      this.dashTimer = 0.18;
+      this.dashCooldown = 0.95;
+      this.invuln = Math.max(this.invuln, 0.24);
+      this.dashDir = { ...move };
+      audio.sfx('dash');
+      for (let i = 0; i < 12; i++) game.particles.push(new Particle(this.x, this.y, {
+        vx: -move.x * rand(80, 220) + rand(-30, 30), vy: -move.y * rand(80, 220) + rand(-30, 30),
+        life: rand(.16, .34), size: rand(3, 8), color: '#d9b67a', shape: 'smoke',
+      }));
+    }
+
+    let speed = this.speed;
+    let mx = move.x, my = move.y;
+    if (this.dashTimer > 0) {
+      this.dashTimer -= dt;
+      speed = 720;
+      mx = this.dashDir.x; my = this.dashDir.y;
+      if (Math.random() < dt * 70) game.particles.push(new Particle(this.x, this.y, {
+        vx: rand(-40, 40), vy:

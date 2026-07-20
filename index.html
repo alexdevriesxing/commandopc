@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071018" />
+  <meta name="description" content="Commando PC: Operation Cinder — an original modern web arcade shooter inspired by 8-bit run-and-gun classics." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Commando PC: Operation Cinder</title>
+</head>
+<body>
+  <main id="app" aria-label="Commando PC game">
+    <section id="shell" class="shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Commando PC home">
+          <img src="assets/logo.svg" alt="Commando PC: Operation Cinder" />
+        </a>
+        <div class="status-cluster" aria-live="polite">
+          <span id="audioStatus" class="status-chip">AUDIO ARMED</span>
+          <span id="modeStatus" class="status-chip status-chip--accent">WEB BUILD</span>
+        </div>
+      </header>
+      <div id="gameFrame" class="game-frame">
+        <canvas id="game" width="1280" height="720" aria-label="Top-down action game canvas" tabindex="0"></canvas>
+        <div class="crt-overlay" aria-hidden="true"></div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <div id="touchControls" class="touch-controls" aria-hidden="true">
+          <div id="touchStick" class="touch-stick"><span></span></div>
+          <div class="touch-actions">
+            <button data-touch="grenade" aria-label="Throw grenade">G</button>
+            <button data-touch="dash" aria-label="Dash">DASH</button>
+            <button data-touch="fire" class="fire" aria-label="Fire weapon">FIRE</button>
+          </div>
+        </div>
+      </div>
+      <footer class="footerbar">
+        <div class="control-hint"><strong>MOVE</strong> WASD / ARROWS</div>
+        <div class="control-hint"><strong>AIM + FIRE</strong> MOUSE</div>
+        <div class="control-hint"><strong>GRENADE</strong> SPACE</div>
+        <div class="control-hint"><strong>DASH</strong> SHIFT</div>
+        <div class="control-hint"><strong>PAUSE</strong> P</div>
+      </footer>
+    </section>
+  </main>
+  <noscript>This game requires JavaScript.</noscript>
+  <script type="module" src="src/game.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>

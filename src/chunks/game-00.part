@@ -1,0 +1,144 @@
+const canvas = document.querySelector('#game');
+const ctx = canvas.getContext('2d', { alpha: false });
+const toastEl = document.querySelector('#toast');
+const audioStatus = document.querySelector('#audioStatus');
+const modeStatus = document.querySelector('#modeStatus');
+const touchControls = document.querySelector('#touchControls');
+
+const W = 1280;
+const H = 720;
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a = 1, b) => b === undefined ? Math.random() * a : a + Math.random() * (b - a);
+const randi = (a, b) => Math.floor(rand(a, b + 1));
+const choose = (arr) => arr[(Math.random() * arr.length) | 0];
+const dist2 = (a, b) => (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+const angleTo = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
+const easeOutBack = (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2);
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+const hash = (x) => {
+  const s = Math.sin(x * 12.9898) * 43758.5453;
+  return s - Math.floor(s);
+};
+
+const safeStorage = {
+  get(key, fallback = '0') {
+    try { return window.localStorage.getItem(key) ?? fallback; } catch { return fallback; }
+  },
+  set(key, value) {
+    try { window.localStorage.setItem(key, String(value)); } catch { /* storage is optional */ }
+  },
+};
+
+function roundRect(c, x, y, w, h, r) {
+  const rr = Math.min(r, w / 2, h / 2);
+  c.beginPath();
+  c.roundRect(x, y, w, h, rr);
+}
+
+function text(c, value, x, y, size, color = '#fff', align = 'left', weight = 900, font = 'Arial Black, Impact, sans-serif') {
+  c.save();
+  c.font = `${weight} ${size}px ${font}`;
+  c.textAlign = align;
+  c.textBaseline = 'middle';
+  c.fillStyle = color;
+  c.fillText(value, x, y);
+  c.restore();
+}
+
+function strokeText(c, value, x, y, size, fill, stroke = '#071018', width = 8, align = 'left') {
+  c.save();
+  c.font = `900 ${size}px Arial Black, Impact, sans-serif`;
+  c.textAlign = align;
+  c.textBaseline = 'middle';
+  c.lineJoin = 'round';
+  c.strokeStyle = stroke;
+  c.lineWidth = width;
+  c.strokeText(value, x, y);
+  c.fillStyle = fill;
+  c.fillText(value, x, y);
+  c.restore();
+}
+
+function formatScore(n) {
+  return String(Math.max(0, Math.floor(n))).padStart(7, '0');
+}
+
+const PALETTES = {
+  canyon: { sky: '#e8a54c', sand: '#c86f3c', sand2: '#7d3f35', shadow: '#482d31', accent: '#ffd077', foliage: '#496a4f', wall: '#b96b48' },
+  oasis: { sky: '#72b6b7', sand: '#d8ad63', sand2: '#8c694a', shadow: '#27454a', accent: '#f8e29d', foliage: '#296354', wall: '#c68a5f' },
+  ruins: { sky: '#c48f71', sand: '#9b664d', sand2: '#563c3f', shadow: '#2b2935', accent: '#f1c785', foliage: '#425646', wall: '#806052' },
+  salt: { sky: '#9fd5d8', sand: '#e8dfc7', sand2: '#948f87', shadow: '#475b61', accent: '#ffffff', foliage: '#617f6c', wall: '#c5baa1' },
+  night: { sky: '#14253e', sand: '#4b4a5a', sand2: '#28273a', shadow: '#0a111e', accent: '#7cd9e6', foliage: '#263e48', wall: '#5a5363' },
+  facility: { sky: '#402f39', sand: '#5d4540', sand2: '#2c2528', shadow: '#140f14', accent: '#ff7b3e', foliage: '#3d4a3c', wall: '#6f5550' },
+};
+
+const WEAPONS = {
+  rifle: { name: 'M4 CARBINE', short: 'RIFLE', rate: 0.105, damage: 22, speed: 1120, spread: 0.035, pellets: 1, mag: 30, reserve: 180, reload: 1.45, kick: 3.5, color: '#ffe39a', sound: 'rifle' },
+  smg: { name: 'VECTOR SMG', short: 'SMG', rate: 0.064, damage: 12, speed: 980, spread: 0.085, pellets: 1, mag: 42, reserve: 252, reload: 1.2, kick: 2.2, color: '#bdf9ff', sound: 'smg' },
+  shotgun: { name: 'BREACH SHOTGUN', short: 'SHOTGUN', rate: 0.62, damage: 14, speed: 820, spread: 0.32, pellets: 8, mag: 8, reserve: 48, reload: 1.75, kick: 8, color: '#ffd064', sound: 'shotgun' },
+  lmg: { name: 'SAW LMG', short: 'LMG', rate: 0.082, damage: 18, speed: 1060, spread: 0.075, pellets: 1, mag: 80, reserve: 320, reload: 2.4, kick: 4.2, color: '#ffe08c', sound: 'lmg' },
+  launcher: { name: 'M32 LAUNCHER', short: 'GL', rate: 0.88, damage: 120, speed: 540, spread: 0.025, pellets: 1, mag: 6, reserve: 18, reload: 2.3, kick: 12, color: '#ff9d4d', sound: 'launcher', explosive: true },
+  plasma: { name: 'ARC PROTOTYPE', short: 'ARC', rate: 0.16, damage: 34, speed: 720, spread: 0.025, pellets: 1, mag: 24, reserve: 120, reload: 1.6, kick: 5, color: '#76fff0', sound: 'plasma', pierce: 2 },
+};
+
+const ENEMY_TYPES = {
+  rifleman: { name: 'RIFLEMAN', hp: 58, speed: 116, radius: 18, fireRate: 0.95, damage: 10, range: 470, score: 120, color: '#9d5747', behavior: 'strafe' },
+  runner: { name: 'RUSHER', hp: 42, speed: 190, radius: 16, fireRate: 0.58, damage: 8, range: 250, score: 140, color: '#c77942', behavior: 'rush' },
+  grenadier: { name: 'GRENADIER', hp: 82, speed: 88, radius: 20, fireRate: 2.5, damage: 26, range: 570, score: 220, color: '#6f7551', behavior: 'grenade' },
+  sniper: { name: 'MARKSMAN', hp: 52, speed: 72, radius: 17, fireRate: 2.2, damage: 28, range: 800, score: 260, color: '#5d6a76', behavior: 'sniper' },
+  shield: { name: 'SHIELD', hp: 150, speed: 74, radius: 23, fireRate: 1.35, damage: 12, range: 350, score: 300, color: '#3f6870', behavior: 'shield', armor: 0.52 },
+  heavy: { name: 'HEAVY', hp: 270, speed: 58, radius: 29, fireRate: 0.15, damage: 7, range: 560, score: 480, color: '#713f46', behavior: 'heavy', armor: 0.24 },
+  drone: { name: 'DRONE', hp: 76, speed: 145, radius: 19, fireRate: 0.8, damage: 11, range: 620, score: 240, color: '#466b76', behavior: 'drone', flying: true },
+  boss: { name: 'COLONEL VESAL', hp: 2200, speed: 92, radius: 42, fireRate: 0.12, damage: 9, range: 720, score: 5000, color: '#a33539', behavior: 'boss', armor: 0.18 },
+};
+
+const LEVELS = [
+  {
+    id: 1, codename: 'DUST KNIFE', region: 'DASHT-E KAVIR / WESTERN APPROACH', palette: 'canyon', length: 4400,
+    objective: 'BREAK THE BORDER CORDON', music: 'march', weather: 'heat',
+    enemies: ['rifleman', 'runner', 'grenadier'], intensity: 1,
+    props: ['rock', 'scrub', 'wreck', 'checkpoint'], reward: 'smg',
+  },
+  {
+    id: 2, codename: 'GREEN MIRAGE', region: 'ABANDONED QANAT SETTLEMENT', palette: 'oasis', length: 5000,
+    objective: 'DESTROY 4 SIGNAL RELAYS', music: 'pulse', weather: 'wind', relays: 4,
+    enemies: ['rifleman', 'runner', 'grenadier', 'sniper'], intensity: 1.18,
+    props: ['palm', 'pool', 'wall', 'market'], reward: 'shotgun',
+  },
+  {
+    id: 3, codename: 'BROKEN CROWN', region: 'MOUNTAIN FORTRESS RUINS', palette: 'ruins', length: 5400,
+    objective: 'CLEAR THE ARTILLERY COURTYARD', music: 'march', weather: 'ash',
+    enemies: ['rifleman', 'sniper', 'shield', 'heavy'], intensity: 1.35,
+    props: ['ruin', 'pillar', 'crater', 'banner'], reward: 'lmg',
+  },
+  {
+    id: 4, codename: 'WHITE HORIZON', region: 'SALT FLATS CONVOY ROUTE', palette: 'salt', length: 5800,
+    objective: 'INTERCEPT THE CORE TRANSPORT', music: 'chase', weather: 'glare', convoy: true,
+    enemies: ['runner', 'grenadier', 'sniper', 'drone', 'heavy'], intensity: 1.5,
+    props: ['salt', 'truck', 'antenna', 'bones'], reward: 'launcher',
+  },
+  {
+    id: 5, codename: 'BLACK GLASS', region: 'NIGHT REFINERY PERIMETER', palette: 'night', length: 6200,
+    objective: 'SABOTAGE 3 COOLANT PUMPS', music: 'night', weather: 'sparks', relays: 3,
+    enemies: ['rifleman', 'shield', 'heavy', 'drone', 'sniper'], intensity: 1.72,
+    props: ['pipe', 'tank', 'lamp', 'barrier'], reward: 'plasma',
+  },
+  {
+    id: 6, codename: 'CINDER VAULT', region: 'MOUNTAIN ISOTOPE FACILITY', palette: 'facility', length: 6600,
+    objective: 'RECOVER THE PLUTONIUM CORE', music: 'finale', weather: 'embers', boss: true,
+    enemies: ['shield', 'heavy', 'drone', 'grenadier'], intensity: 2,
+    props: ['concrete', 'vent', 'hazard', 'reactor'], reward: null,
+  },
+];
+
+const INTRO_PANELS = [
+  {
+    kicker: '03:17 LOCAL — CLASSIFIED AIRSPACE',
+    title: 'THE CORE WENT DARK.',
+    body: 'A rogue weapons broker called the Cinder Directorate seized a stolen plutonium transport and vanished into Iran’s central desert.',
+    scene: 'aircraft',
+  },
+  {
+    kicker: 

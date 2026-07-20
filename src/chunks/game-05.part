@@ -1,0 +1,158 @@
+          const toward = d > 500 ? 1 : d < 360 ? -1 : 0;
+          mx = Math.cos(this.angle) * toward; my = Math.sin(this.angle) * toward;
+          break;
+        }
+        case 'sniper': {
+          const toward = d > 690 ? 1 : d < 560 ? -1 : 0;
+          mx = Math.cos(this.angle) * toward; my = Math.sin(this.angle) * toward;
+          if (this.fireTimer < .7 && this.fireTimer > 0) this.telegraph = this.fireTimer;
+          break;
+        }
+        case 'shield':
+          mx = Math.cos(this.angle) * (d > 290 ? 1 : -.2); my = Math.sin(this.angle) * (d > 290 ? 1 : -.2);
+          break;
+        case 'heavy':
+          mx = Math.cos(this.angle) * (d > 450 ? 1 : 0); my = Math.sin(this.angle) * (d > 450 ? 1 : 0);
+          break;
+        case 'drone':
+          mx = Math.cos(this.angle) * (d > 410 ? 1 : -.4) + Math.cos(this.angle + Math.PI / 2) * this.orbitDir;
+          my = Math.sin(this.angle) * (d > 410 ? 1 : -.4) + Math.sin(this.angle + Math.PI / 2) * this.orbitDir;
+          break;
+        case 'boss': {
+          this.bossPhase = this.hp / this.maxHp > .66 ? 1 : this.hp / this.maxHp > .3 ? 2 : 3;
+          const desired = this.bossPhase === 1 ? 500 : this.bossPhase === 2 ? 380 : 300;
+          const toward = d > desired + 80 ? 1 : d < desired - 80 ? -1 : 0;
+          mx = Math.cos(this.angle) * toward + Math.cos(this.angle + Math.PI / 2) * this.orbitDir * (.6 + this.bossPhase * .13);
+          my = Math.sin(this.angle) * toward + Math.sin(this.angle + Math.PI / 2) * this.orbitDir * (.6 + this.bossPhase * .13);
+          break;
+        }
+      }
+    }
+
+    const md = Math.hypot(mx, my) || 1;
+    this.x += (mx / md) * this.speed * dt;
+    this.y += (my / md) * this.speed * dt;
+    this.x = clamp(this.x, 42, W - 42);
+    this.y = clamp(this.y, game.cameraY + 40, game.cameraY + H + 100);
+    if (Math.abs(mx) + Math.abs(my) > .05) this.walk += dt * (this.flying ? 5 : 8);
+
+    if (this.fireTimer <= 0 && d < this.range && game.player.hp > 0) this.fire(game);
+    return true;
+  }
+
+  fire(game) {
+    const aim = angleTo(this, game.player);
+    if (this.behavior === 'grenade') {
+      this.fireTimer = this.fireRate * rand(.88, 1.18);
+      game.projectiles.push(new Projectile(this.x, this.y, aim, 340, this.damage, 'enemy', {
+        color: '#ff9c42', grenade: true, explosive: true, life: 1.25, trail: false, radius: 8,
+      }));
+      audio.sfx('launcher', .35);
+      return;
+    }
+    if (this.behavior === 'sniper') {
+      this.fireTimer = this.fireRate * rand(.9, 1.1);
+      game.projectiles.push(new Projectile(this.x, this.y, aim + rand(-.018, .018), 1350, this.damage, 'enemy', { color: '#ff3f3f', radius: 4, life: 1 }));
+      game.shake += 2;
+      audio.sfx('shotgun', .28);
+      return;
+    }
+    if (this.behavior === 'heavy') {
+      this.fireTimer = this.fireRate;
+      game.projectiles.push(new Projectile(this.x, this.y, aim + rand(-.12, .12), 740, this.damage, 'enemy', { color: '#ff8c66', radius: 4, life: 1.3 }));
+      audio.sfx('enemy');
+      return;
+    }
+    if (this.behavior === 'boss') {
+      const phase = this.bossPhase;
+      this.fireTimer = this.fireRate * (phase === 3 ? .72 : 1);
+      if (Math.random() < (phase === 1 ? .08 : .16)) {
+        for (let i = 0; i < 12 + phase * 3; i++) {
+          const a = i / (12 + phase * 3) * TAU + this.phase;
+          game.projectiles.push(new Projectile(this.x, this.y, a, 470 + phase * 50, 8 + phase, 'enemy', { color: '#ff693d', radius: 4, life: 1.55 }));
+        }
+        audio.sfx('explosion', .35);
+      } else {
+        const count = phase === 1 ? 1 : phase === 2 ? 2 : 3;
+        for (let i = 0; i < count; i++) game.projectiles.push(new Projectile(this.x, this.y, aim + rand(-.12, .12), 860, this.damage, 'enemy', { color: '#ff4e38', radius: 5, life: 1.2 }));
+        audio.sfx('lmg', .4);
+      }
+      return;
+    }
+
+    this.fireTimer = this.fireRate * rand(.85, 1.18);
+    const spread = this.behavior === 'drone' ? .12 : .08;
+    game.projectiles.push(new Projectile(this.x, this.y, aim + rand(-spread, spread), this.behavior === 'drone' ? 760 : 690, this.damage, 'enemy', {
+      color: this.behavior === 'drone' ? '#8ff4ff' : '#ff7357', radius: 4, life: 1.4,
+    }));
+    audio.sfx('enemy');
+  }
+
+  takeDamage(amount, sourceAngle, game, projectile) {
+    if (this.dead) return;
+    let final = amount;
+    if (this.armor) {
+      const facingDiff = Math.abs(Math.atan2(Math.sin(sourceAngle - this.angle), Math.cos(sourceAngle - this.angle)));
+      if (this.behavior !== 'shield' || facingDiff > 1.75) final *= (1 - this.armor);
+      else if (this.behavior === 'shield' && facingDiff <= 1.75) {
+        final *= .2;
+        game.floating.push(new FloatingText(this.x, this.y - 28, 'BLOCK', '#73e8f4', 13));
+        for (let i = 0; i < 8; i++) game.particles.push(new Particle(this.x, this.y, {
+          vx: Math.cos(sourceAngle + rand(-.6, .6)) * rand(90, 220), vy: Math.sin(sourceAngle + rand(-.6, .6)) * rand(90, 220), life: .16, size: 3, color: '#73e8f4', shape: 'spark',
+        }));
+      }
+    }
+    this.hp -= final;
+    this.hitFlash = .08;
+    this.stagger = Math.min(.13, final / 180);
+    audio.sfx('hit');
+    game.comboTimer = 2.8;
+    game.comboHits++;
+    if (game.comboHits % 6 === 0) game.combo = Math.min(8, game.combo + 1);
+    game.floating.push(new FloatingText(this.x, this.y - this.radius, `${Math.round(final)}`, projectile?.color || '#ffd66b', 14));
+    for (let i = 0; i < 7; i++) game.particles.push(new Particle(this.x, this.y, {
+      vx: Math.cos(sourceAngle + rand(-.65, .65)) * rand(80, 230), vy: Math.sin(sourceAngle + rand(-.65, .65)) * rand(80, 230),
+      life: rand(.08, .24), size: rand(2, 5), color: this.flying ? '#7feaf0' : '#ff8b62', shape: Math.random() < .5 ? 'spark' : 'circle',
+    }));
+    if (this.hp <= 0) this.die(game, sourceAngle);
+  }
+
+  die(game, sourceAngle) {
+    this.dead = true;
+    this.deathTimer = 0;
+    game.kills++;
+    game.score += Math.round(this.score * game.combo);
+    game.comboTimer = 3.2;
+    game.comboHits += 2;
+    if (game.comboHits % 5 === 0) game.combo = Math.min(8, game.combo + 1);
+    game.slowMo = Math.max(game.slowMo, this.typeKey === 'boss' ? .8 : .06);
+    game.shake += this.typeKey === 'boss' ? 24 : 5;
+    game.decals.push(new Decal(this.x, this.y, this.flying ? 'scorch' : 'stain', this.radius * 1.6, this.flying ? '#142125' : '#5a2525'));
+    const count = this.typeKey === 'boss' ? 70 : this.flying ? 28 : 20;
+    for (let i = 0; i < count; i++) game.particles.push(new Particle(this.x, this.y, {
+      vx: Math.cos(sourceAngle + Math.PI + rand(-1.5, 1.5)) * rand(45, this.typeKey === 'boss' ? 420 : 280),
+      vy: Math.sin(sourceAngle + Math.PI + rand(-1.5, 1.5)) * rand(45, this.typeKey === 'boss' ? 420 : 280),
+      life: rand(.18, this.typeKey === 'boss' ? 1.2 : .65), size: rand(2, this.typeKey === 'boss' ? 13 : 8),
+      color: this.flying ? choose(['#75f5ef', '#547680', '#ff8d4b']) : choose(['#ff6d52', '#7e2f35', this.color, '#d6aa77']),
+      shape: Math.random() < .4 ? 'square' : Math.random() < .5 ? 'spark' : 'circle', gravity: this.flying ? 80 : 190,
+    }));
+    audio.sfx(this.typeKey === 'boss' ? 'explosion' : 'hurt', this.typeKey === 'boss' ? 1.5 : .45);
+    if (this.typeKey === 'boss') {
+      game.explode(this.x, this.y, 220, 0, 'neutral');
+      game.bossDefeated = true;
+    }
+
+    const dropRoll = Math.random();
+    if (dropRoll < .09) game.pickups.push(new Pickup(this.x, this.y, 'health'));
+    else if (dropRoll < .16) game.pickups.push(new Pickup(this.x, this.y, 'armor'));
+    else if (dropRoll < .24) game.pickups.push(new Pickup(this.x, this.y, 'ammo'));
+    else if (dropRoll < .28) game.pickups.push(new Pickup(this.x, this.y, 'grenade'));
+  }
+
+  draw(c, cameraY) {
+    const sy = this.y - cameraY;
+    if (sy < -100 || sy > H + 120) return;
+    if (this.dead) return this.drawDeath(c, sy);
+    const bob = this.flying ? Math.sin(this.phase * 5) * 8 : Math.sin(this.walk) * 1.6;
+    const leg = Math.sin(this.walk) * 5;
+    c.save();

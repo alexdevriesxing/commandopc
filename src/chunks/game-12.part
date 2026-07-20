@@ -1,0 +1,122 @@
+eginPath(); c.arc(0, -30, 22 + Math.sin(t.phase * 4) * 3, Math.PI, TAU); c.stroke();
+        c.fillStyle = '#ff6b2c'; c.beginPath(); c.arc(0, -43, 8, 0, TAU); c.fill();
+      } else if (t.type === 'pump') {
+        c.fillStyle = '#3e4a50'; c.strokeStyle = '#071018'; c.lineWidth = 8; roundRect(c, -48, -42, 96, 84, 12); c.fill(); c.stroke();
+        c.fillStyle = '#42e8dc'; c.fillRect(-38, -14, 76, 10); c.fillStyle = '#ff6b2c'; c.beginPath(); c.arc(0, 14, 16, 0, TAU); c.fill();
+        c.strokeStyle = '#68757a'; c.lineWidth = 12; c.beginPath(); c.moveTo(-46, 24); c.lineTo(-72, 50); c.moveTo(46, 24); c.lineTo(72, 50); c.stroke();
+      } else if (t.type === 'convoy') {
+        c.rotate(Math.sin(t.phase) * .02);
+        c.fillStyle = '#39474a'; c.strokeStyle = '#071018'; c.lineWidth = 8; roundRect(c, -72, -42, 144, 84, 14); c.fill(); c.stroke();
+        c.fillStyle = '#1a252a'; c.fillRect(-52, -30, 38, 24); c.fillRect(14, -30, 38, 24);
+        c.fillStyle = '#ff6b2c'; c.fillRect(-60, 13, 120, 9);
+        c.fillStyle = '#66766d'; c.fillRect(-12, -62, 24, 35); c.strokeRect(-12, -62, 24, 35);
+        c.fillStyle = '#071018'; c.beginPath(); c.arc(-50, 43, 15, 0, TAU); c.arc(50, 43, 15, 0, TAU); c.fill();
+      } else if (t.type === 'core') {
+        const glow = t.locked ? '#ff6b2c' : '#42e8dc';
+        c.shadowColor = glow; c.shadowBlur = 34 + Math.sin(t.phase * 5) * 8;
+        c.fillStyle = '#173338'; c.strokeStyle = '#071018'; c.lineWidth = 8; roundRect(c, -55, -37, 110, 74, 12); c.fill(); c.stroke();
+        c.fillStyle = glow; c.beginPath(); c.arc(0, 0, 23, 0, TAU); c.fill(); c.shadowBlur = 0;
+        text(c, '☢', 0, 1, 25, '#071018', 'center');
+        if (t.locked) text(c, 'LOCKED', 0, 58, 12, '#ff8661', 'center');
+      }
+      c.restore();
+      if (!t.dead && t.type !== 'core') {
+        const w = t.type === 'convoy' ? 150 : 92;
+        c.fillStyle = 'rgba(7,16,24,.78)'; c.fillRect(t.x - w / 2, sy - 75, w, 9);
+        c.fillStyle = t.type === 'pump' ? '#42e8dc' : '#ff6b2c'; c.fillRect(t.x - w / 2, sy - 75, w * clamp(t.hp / t.maxHp, 0, 1), 9);
+      }
+    }
+  }
+
+  drawWeather(c) {
+    c.save();
+    for (const p of this.weatherParticles) {
+      const a = clamp(p.life / p.maxLife, 0, 1);
+      c.globalAlpha = a * .55;
+      if (p.type === 'dust') { c.strokeStyle = '#efd49a'; c.lineWidth = 2; c.beginPath(); c.moveTo(p.x, p.y); c.lineTo(p.x - 28, p.y - 2); c.stroke(); }
+      if (p.type === 'ash') { c.fillStyle = '#25252a'; c.beginPath(); c.arc(p.x, p.y, 2.5, 0, TAU); c.fill(); }
+      if (p.type === 'spark') { c.strokeStyle = '#75f5ef'; c.lineWidth = 2; c.beginPath(); c.moveTo(p.x, p.y); c.lineTo(p.x, p.y - 8); c.stroke(); }
+      if (p.type === 'ember') { c.fillStyle = '#ff823f'; c.shadowColor = '#ff823f'; c.shadowBlur = 10; c.beginPath(); c.arc(p.x, p.y, 3, 0, TAU); c.fill(); }
+      if (p.type === 'heat') { c.strokeStyle = 'rgba(255,255,255,.17)'; c.lineWidth = 1; c.beginPath(); c.moveTo(p.x, p.y); c.quadraticCurveTo(p.x + 8, p.y - 12, p.x, p.y - 24); c.stroke(); }
+    }
+    c.restore();
+  }
+
+  drawHUD(c) {
+    c.save();
+    const pad = 24;
+    c.fillStyle = 'rgba(5,12,18,.84)'; roundRect(c, pad, pad, 390, 78, 14); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 1.5; c.stroke();
+    text(c, 'RANGER ONE', 42, 43, 11, '#8ea2aa', 'left', 900, 'Inter, sans-serif');
+    text(c, formatScore(this.score), 396, 43, 18, '#f8f2df', 'right');
+    c.fillStyle = '#1a252b'; roundRect(c, 42, 58, 240, 16, 6); c.fill();
+    c.fillStyle = this.player.hp > 30 ? '#ff6b4a' : '#ff3535'; roundRect(c, 42, 58, 240 * this.player.hp / this.player.maxHp, 16, 6); c.fill();
+    text(c, `${Math.ceil(this.player.hp)} HP`, 292, 66, 10, '#f8f2df', 'left', 800, 'Inter, sans-serif');
+    c.fillStyle = '#1a252b'; roundRect(c, 42, 82, 240, 8, 4); c.fill();
+    c.fillStyle = '#42d6e8'; roundRect(c, 42, 82, 240 * this.player.armor / this.player.maxArmor, 8, 4); c.fill();
+    text(c, 'ARMOR', 292, 86, 9, '#80dce7', 'left', 800, 'Inter, sans-serif');
+
+    c.fillStyle = 'rgba(5,12,18,.84)'; roundRect(c, W - 386, pad, 362, 78, 14); c.fill(); c.stroke();
+    text(c, this.player.weapon.name, W - 366, 44, 12, '#42e8dc', 'left', 900, 'Inter, sans-serif');
+    text(c, String(this.player.weapon.ammo).padStart(2, '0'), W - 164, 69, 36, '#f8f2df', 'right');
+    text(c, `/ ${String(this.player.weapon.reserveAmmo).padStart(3, '0')}`, W - 46, 72, 17, '#93a6ad', 'right');
+    text(c, `GRENADES  ${this.player.grenades}`, W - 366, 88, 10, '#ffd45a', 'left', 900, 'Inter, sans-serif');
+    if (this.player.reloadTimer > 0) text(c, 'RELOADING', W - 46, 91, 10, '#ffad5c', 'right', 900, 'Inter, sans-serif');
+
+    const progress = clamp(1 - this.player.y / this.level.length, 0, 1);
+    c.fillStyle = 'rgba(5,12,18,.76)'; roundRect(c, W / 2 - 185, 26, 370, 52, 13); c.fill();
+    text(c, `M${String(this.level.id).padStart(2, '0')}  ${this.level.codename}`, W / 2, 43, 12, '#f8f2df', 'center', 900, 'Inter, sans-serif');
+    c.fillStyle = '#1c2930'; roundRect(c, W / 2 - 151, 59, 302, 7, 4); c.fill();
+    c.fillStyle = '#42e8dc'; roundRect(c, W / 2 - 151, 59, 302 * progress, 7, 4); c.fill();
+
+    const targetCount = this.targets.filter((t) => !t.dead && t.type !== 'core').length;
+    let objective = this.level.objective;
+    if (targetCount > 0) objective += `  ·  ${targetCount} REMAIN`;
+    if (this.level.boss && this.bossDefeated && !this.coreRecovered) objective = 'SECURE THE PLUTONIUM CORE';
+    if (this.level.boss && this.coreRecovered) objective = 'REACH EXTRACTION';
+    c.fillStyle = 'rgba(5,12,18,.76)'; roundRect(c, W / 2 - 290, H - 54, 580, 32, 12); c.fill();
+    text(c, objective, W / 2, H - 38, 11, '#eef4e4', 'center', 900, 'Inter, sans-serif');
+
+    const boss = this.enemies.find((e) => e.typeKey === 'boss' && !e.dead);
+    if (boss) {
+      c.fillStyle = 'rgba(5,12,18,.9)'; roundRect(c, W / 2 - 320, 104, 640, 44, 10); c.fill();
+      text(c, boss.name, W / 2, 117, 11, '#ffb092', 'center', 900, 'Inter, sans-serif');
+      c.fillStyle = '#27191e'; c.fillRect(W / 2 - 286, 131, 572, 8);
+      c.fillStyle = '#ff4a3c'; c.fillRect(W / 2 - 286, 131, 572 * clamp(boss.hp / boss.maxHp, 0, 1), 8);
+    }
+
+    if (this.combo > 1.02) {
+      const scale = 1 + Math.sin(this.time * 10) * .035;
+      c.save(); c.translate(72, 146); c.scale(scale, scale);
+      strokeText(c, `x${Math.floor(this.combo)}`, 0, 0, 34, '#ffd45a', '#071018', 8);
+      text(c, 'COMBO', 0, 28, 10, '#f8f2df', 'left', 900, 'Inter, sans-serif');
+      c.restore();
+    }
+
+    if (this.announceTimer > 0) {
+      const a = clamp(Math.min(this.announceTimer * 3, (2.4 - this.announceTimer) * 3), 0, 1);
+      c.globalAlpha = a;
+      c.fillStyle = 'rgba(5,12,18,.88)'; roundRect(c, W / 2 - 360, 192, 720, 62, 14); c.fill();
+      c.fillStyle = '#ff6b2c'; c.fillRect(W / 2 - 360, 192, 8, 62);
+      strokeText(c, this.announceText, W / 2, 223, 23, '#f8f2df', '#071018', 5, 'center');
+    }
+    c.restore();
+  }
+
+  drawScreenEffects(c) {
+    if (this.player.hurtFlash > 0) {
+      const g = c.createRadialGradient(W / 2, H / 2, H * .25, W / 2, H / 2, H * .75);
+      g.addColorStop(0, 'rgba(255,20,20,0)'); g.addColorStop(1, `rgba(255,25,20,${this.player.hurtFlash * 1.8})`);
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+    }
+    if (this.flash > 0) { c.fillStyle = `rgba(255,235,190,${this.flash * 1.7})`; c.fillRect(0, 0, W, H); }
+    const vig = c.createRadialGradient(W / 2, H / 2, H * .25, W / 2, H / 2, H * .82);
+    vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(0,0,0,.34)'); c.fillStyle = vig; c.fillRect(0, 0, W, H);
+  }
+
+  drawPause(c) {
+    c.fillStyle = 'rgba(3,8,12,.72)'; c.fillRect(0, 0, W, H);
+    c.fillStyle = 'rgba(7,16,24,.94)'; roundRect(c, W / 2 - 260, H / 2 - 170, 520, 340, 20); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.14)'; c.lineWidth = 2; c.stroke();
+    text(c, 'TACTICAL PAUSE', W / 2, H / 2 - 112, 34, '#f8f2df', 'center');
+    text(c, this.level.objective, W / 2, H / 2 - 67, 12, '#42e8dc', 'center', 90
