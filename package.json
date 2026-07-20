@@ -1,8 +1,8 @@
 {
-  "name": "commando-pc-operation-cinder",
-  "version": "1.0.0",
+  "name": "black-horizon-cinder-protocol",
+  "version": "1.1.0",
   "private": true,
-  "description": "Original modern web arcade shooter with custom Canvas art and WebAudio soundtrack.",
+  "description": "Original top-down extraction shooter with production SVG sprite atlases, deep campaign systems, and procedural WebAudio.",
   "type": "module",
   "scripts": {
     "dev": "python3 -m http.server 4173",

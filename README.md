@@ -1,8 +1,8 @@
-# Commando PC: Operation Cinder
+# Black Horizon: Cinder Protocol
 
-A complete original web arcade shooter inspired by the urgency and readability of classic top-down run-and-gun games, rebuilt with a modern comic-book presentation. The game uses no copied franchise assets and no runtime dependencies: rendering is custom HTML5 Canvas, while the score and sound effects are synthesized live with WebAudio.
+**Black Horizon: Cinder Protocol** is an original top-down desert extraction shooter with a six-mission campaign, persistent field doctrines, dynamic threat escalation, and a complete production visual system. It has no runtime dependencies: gameplay renders through HTML5 Canvas, the soundtrack and SFX are synthesized with WebAudio, and every shipped visual is stored as a web-native SVG asset or atlas.
 
-![Operation Cinder key art](assets/key-art.svg)
+![Black Horizon key art](assets/key-art.svg)
 
 ## Play locally
 
@@ -14,39 +14,44 @@ Open `http://localhost:4173`.
 
 ## Campaign
 
-American Special Forces operator Captain Mara Vance, callsign Ranger One, enters Iran's central desert to recover a stolen plutonium core from the fictional Cinder Directorate. The story is presented through a five-panel original comic intro and six distinct missions:
+American Special Forces operator Captain Mara Vance, callsign Ranger One, enters Iran's central desert to recover a stolen plutonium core from the fictional Cinder Directorate. The narrative is presented through a production comic intro and six distinct operations:
 
 1. **Dust Knife** — canyon border cordon
 2. **Green Mirage** — oasis and qanat settlement
 3. **Broken Crown** — mountain fortress ruins
 4. **White Horizon** — salt-flat convoy pursuit
 5. **Black Glass** — night refinery sabotage
-6. **Cinder Vault** — isotope facility and boss encounter
+6. **Cinder Vault** — isotope facility and multi-phase boss encounter
 
-The narrative and factions are fictional. No real operation, unit deployment, person, flag, or faction insignia is depicted.
+The story, characters, organizations, insignia, and operation are fictional.
 
 ## Deep campaign systems
 
-- Four distinct difficulty tiers: **Story**, **Operative**, **Veteran**, and **Nightmare**
-- Difficulty-specific hostile durability, damage, aggression, formation density, elite frequency, supply scarcity, starting resources, and score multipliers
-- A dynamic combat director that reacts to mission progress, player health, and combo pressure with reinforcement squads and emergency supplies
-- Eight operation mutators including crossfire teams, armored columns, drone swarms, hunter teams, medics, volatile elites, minefields, and tactical blackouts
-- Eight persistent field doctrines selected between missions, enabling different health, armor, damage, reload, dash, scavenging, explosive, and combo builds
-- Optional mission operations, S/A/B/C mission ranks, elite bonuses, and difficulty-adjusted scoring
+- Four difficulties: Story, Operative, Veteran, and Nightmare
+- Dynamic combat director reacting to route progress, health, and combo pressure
+- Ten standard enemy archetypes plus a multi-phase boss
+- Elite variants, reinforcement formations, medics, hunters, drones, shields, heavies, and rocketeers
+- Eight mission mutators including blackout, minefields, drone swarms, armored patrols, and volatile elites
+- Eight persistent field doctrines supporting damage, armor, mobility, scavenging, explosives, reload, and combo builds
+- Optional operations, S/A/B/C mission ranks, difficulty score multipliers, and local progression
+- Six weapons, grenades, dash invulnerability, armor, pickups, destructible objectives, convoy interception, and core recovery
 
-## Features
+## Production asset system
 
-- Six complete campaign levels with individual palettes, weather, props, objectives and music patterns
-- Ten standard enemy archetypes: rifleman, rusher, grenadier, marksman, shield unit, heavy unit, drone, rocketeer, field medic, and hunter, plus a multi-phase boss
-- Elite enemy variants with stronger stats, bonus scoring, unique UI treatment, improved drops, and volatile death behavior on selected operations
-- Six weapons: carbine, SMG, shotgun, LMG, grenade launcher and arc prototype
-- Dash invulnerability, grenades, armor, pickups, reloads, weapon cycling and combo scoring
-- Destructible relays, coolant pumps, convoy and recoverable plutonium core
-- Original key art, logo, comic panels, HUD, menu, difficulty screen, field armory, briefing, pause, victory, defeat and campaign-complete screens
-- Procedural muzzle flashes, shell ejection, impact sparks, smoke, dust, explosions, screen shake, decals and enemy-specific death treatments
-- Original synthesized soundtrack with mission-specific patterns and procedural SFX
-- Keyboard, mouse and touch controls
-- Local progress/high-score/difficulty saving, offline service-worker cache and GitHub Pages deployment workflow
+The visual overhaul replaces the original procedural placeholder look with a complete atlas-based art pipeline:
+
+- `assets/sprites/player-atlas.svg` — 32 directional player animation frames
+- `assets/sprites/enemy-atlas.svg` — 44 enemy state frames across eleven archetypes
+- `assets/sprites/pickup-weapon-atlas.svg` — pickups and six weapon silhouettes
+- `assets/tiles/environment-atlas.svg` — six biome rows with ground, feature, vehicle, structure, and barrier tiles
+- `assets/vfx/vfx-atlas.svg` — 32 muzzle, explosion, smoke, and energy frames
+- `assets/ui/ui-atlas.svg` — difficulty, objective, mutator, doctrine, and resource icons
+- `assets/intro/comic-intro.svg` — full campaign comic introduction
+- `assets/portraits/hero.svg` — production hero portrait
+- Rebuilt logo, favicon, and key art for the **Black Horizon** identity
+- `assets/asset-manifest.json` — deterministic frame-grid metadata for the browser runtime and future ports
+
+The runtime loads these atlases asynchronously and retains the original vector renderer only as a graceful failure fallback.
 
 ## Controls
 
@@ -62,7 +67,7 @@ The narrative and factions are fictional. No real operation, unit deployment, pe
 | Pause | P or Escape |
 | Toggle audio | M |
 
-Touch devices receive an analog movement stick, fire, dash and grenade controls. Touch movement automatically aims at the nearest active threat.
+Touch devices receive an analog movement stick, fire, dash, and grenade controls with nearest-threat aim assistance.
 
 ## Validation
 
@@ -70,8 +75,8 @@ Touch devices receive an analog movement stick, fire, dash and grenade controls.
 npm run check
 ```
 
-This performs JavaScript syntax checks and verifies the shell, campaign data, assets, audio engine, four difficulty presets, operation mutators, field doctrines, combat director, weapon roster, and expanded enemy roster.
+Validation assembles every source chunk, parses the complete runtime, validates the SVG asset pack and atlas metadata, and verifies the campaign, difficulty, director, doctrine, mutator, weapon, and enemy systems.
 
 ## Asset policy
 
-All visual assets in `assets/`, all Canvas-rendered art, the story, music patterns, audio synthesis, UI, VFX and source code were created specifically for this repository. There are no stock packs, copied sprites, sample tracks or placeholder assets.
+All repository visuals, UI, animation atlases, story material, music patterns, audio synthesis, and source code were created specifically for this project. There are no stock packs, copied sprites, sample tracks, external fonts, third-party runtime libraries, or placeholder assets.

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="900" viewBox="0 0 700 900" role="img" aria-labelledby="t d">
+<title id="t">Ranger One portrait</title><desc id="d">A detailed modern comic portrait of the Black Horizon field operator.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071018"/><stop offset=".55" stop-color="#18303a"/><stop offset="1" stop-color="#7c3d32"/></linearGradient>
+ <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f1c095"/><stop offset=".52" stop-color="#c88361"/><stop offset="1" stop-color="#7e453c"/></linearGradient>
+ <linearGradient id="gear" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#61786a"/><stop offset=".5" stop-color="#344a43"/><stop offset="1" stop-color="#15282c"/></linearGradient>
+ <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8aa0a7"/><stop offset=".45" stop-color="#35464f"/><stop offset="1" stop-color="#111b22"/></linearGradient>
+ <radialGradient id="sun"><stop stop-color="#fff4b0"/><stop offset=".22" stop-color="#ffad45" stop-opacity=".95"/><stop offset=".62" stop-color="#ff5b2f" stop-opacity=".45"/><stop offset="1" stop-color="#ff5b2f" stop-opacity="0"/></radialGradient>
+ <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.5" fill="#02070b" opacity=".22"/></pattern>
+ <filter id="shadow" x="-40%" y="-40%" width="180%" height="190%"><feDropShadow dx="8" dy="12" stdDeviation="6" flood-color="#000" flood-opacity=".72"/></filter>
+ <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="700" height="900" fill="url(#bg)"/><rect width="700" height="900" fill="url(#dots)" opacity=".38"/><circle cx="570" cy="145" r="210" fill="url(#sun)"/>
+<!-- industrial skyline -->
+<g fill="#101c23" stroke="#061018" stroke-width="8" opacity=".86"><path d="M0 600V430h88v-85h48v85h72v170z"/><path d="M510 570V350h70v-105h38v105h82v220z"/><path d="M430 600V445h92v155z"/><path d="M40 345V250h17v95M556 245V145h18v100M612 350V205h16v145" fill="none"/></g>
+<g stroke="#ff6b2c" stroke-width="5" opacity=".55"><path d="M15 478h176M454 492h234M508 410h161"/></g>
+<!-- operator -->
+<g filter="url(#shadow)" stroke="#061018" stroke-linejoin="round">
+ <!-- ponytail behind -->
+ <path d="M475 226c77-77 159-28 180 37-48-26-91-7-128 29 57-7 96 32 91 80-42-36-91-33-137-5z" fill="#151b20" stroke-width="15"/>
+ <path d="M505 249c45-36 83-28 111 2-43-2-77 13-112 46" fill="none" stroke="#5a302a" stroke-width="11"/>
+ <!-- torso silhouette -->
+ <path d="M142 892c7-181 34-324 105-408 50-59 111-79 178-48 78 36 123 139 147 456z" fill="url(#gear)" stroke-width="18"/>
+ <!-- neck --> <path d="M277 431l7 95 110-5 7-113z" fill="url(#skin)" stroke-width="14"/>
+ <!-- face 3/4 -->
+ <path d="M220 198c49-78 177-94 249-18 47 50 35 163-18 225-36 41-95 65-146 31-64-42-111-160-85-238z" fill="url(#skin)" stroke-width="16"/>
+ <!-- jaw shade --> <path d="M311 425c61 8 111-27 143-78-10 59-45 103-96 119z" fill="#7c4038" opacity=".48" stroke="none"/>
+ <!-- hair mass -->
+ <path d="M202 231c12-136 144-182 245-105 43 32 60 73 57 126-30-45-64-75-111-90-53 55-117 78-191 69z" fill="#141b20" stroke-width="16"/>
+ <path d="M235 196c40-80 128-99 201-51-62-10-112 11-151 66M309 157c-4 48-30 76-73 94" fill="none" stroke="#714036" stroke-width="12" stroke-linecap="round"/>
+ <!-- ear/headset -->
+ <ellipse cx="463" cy="276" rx="38" ry="48" fill="#26343b" stroke-width="13"/><path d="M469 235v78" stroke="#42e8dc" stroke-width="8"/><path d="M486 304c41 18 51 43 53 76" fill="none" stroke="#172126" stroke-width="11" stroke-linecap="round"/><circle cx="539" cy="381" r="9" fill="#ff6b2c" stroke-width="5"/>
+ <!-- goggles -->
+ <path d="M237 256c50-25 99-28 145-9l-12 61c-45 19-89 16-132-7z" fill="#10252c" stroke-width="13"/><path d="M383 247c37-14 72-7 99 14l-13 55c-31 15-62 12-91-7z" fill="#10252c" stroke-width="13"/><path d="M260 271c32-12 63-13 93-5M401 263c21-4 39 1 56 13" stroke="#42e8dc" stroke-width="7" opacity=".9"/><path d="M370 274h14" stroke-width="12"/>
+ <!-- nose/mouth -->
+ <path d="M378 300l-21 65 33 7" fill="none" stroke="#7b433b" stroke-width="9" stroke-linecap="round"/><path d="M334 401c32 12 66 9 92-10" fill="none" stroke="#4f2829" stroke-width="10" stroke-linecap="round"/><path d="M351 404c20 5 40 3 58-7" stroke="#e0a17d" stroke-width="4"/>
+ <!-- shoulders/arms -->
+ <path d="M232 505C127 529 84 650 63 817l103 34 83-224z" fill="#566e60" stroke-width="17"/><path d="M435 505c103 18 160 112 200 275l-98 48-103-210z" fill="#3a5148" stroke-width="17"/>
+ <!-- vest -->
+ <path d="M216 520l78 42 51-27 77 27 61 300H176z" fill="#263b3c" stroke-width="17"/><path d="M274 527l-34 335M416 532l31 330" fill="none" stroke="#7d9384" stroke-width="15"/><path d="M240 598h203v122H240z" fill="#18282d" stroke-width="12"/><path d="M257 621h47v72h-47zM320 621h47v72h-47zM383 621h43v72h-43z" fill="#455b52" stroke-width="8"/>
+ <path d="M264 744h177v72H264z" fill="#17262b" stroke-width="11"/><text x="352" y="792" text-anchor="middle" fill="#f5e8ca" stroke="#061018" stroke-width="4" paint-order="stroke" font-family="Arial Black" font-size="30" letter-spacing="4">BH-01</text>
+ <!-- rifle -->
+ <g transform="translate(105 690) rotate(-28)"><rect x="0" y="-25" width="470" height="54" rx="12" fill="url(#steel)" stroke-width="14"/><path d="M62-25V-72h102v47M170 29l54 89h72l-40-89" fill="#26343a" stroke-width="12"/><rect x="282" y="-42" width="82" height="26" rx="6" fill="#10191e" stroke-width="10"/><path d="M470 2h85M24 29l-42 55" stroke="#172126" stroke-width="18" stroke-linecap="round"/><path d="M25-2h356" stroke="#42e8dc" stroke-width="5" opacity=".55"/></g>
+ <!-- gloves foreground -->
+ <path d="M130 732c40-24 82-5 102 35l-54 63-73-25z" fill="#182329" stroke-width="14"/><path d="M498 695c44-16 84 17 91 59l-65 52-62-43z" fill="#182329" stroke-width="14"/>
+</g>
+<!-- interface trim -->
+<path d="M25 52h245l34-27h366" fill="none" stroke="#ff6b2c" stroke-width="7"/><path d="M25 78h130" stroke="#42e8dc" stroke-width="4"/><text x="38" y="126" fill="#d9eee9" font-family="Arial Black" font-size="25" letter-spacing="5">RANGER ONE // BH-01</text><text x="38" y="160" fill="#ff9c64" font-family="Arial Black" font-size="16" letter-spacing="4">SPECIAL OPERATIONS · EXTRACTION</text>
+</svg>

@@ -1,11 +1,17 @@
 {
-  "name": "Commando PC: Operation Cinder",
-  "short_name": "Commando PC",
+  "name": "Black Horizon: Cinder Protocol",
+  "short_name": "Black Horizon",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#061019",
+  "background_color": "#03080c",
   "theme_color": "#071018",
+  "description": "A deep original top-down desert extraction campaign.",
   "icons": [
-    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900"><defs>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#000" flood-opacity=".65"/></filter>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="copper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb24a"/><stop offset=".55" stop-color="#ff6b2c"/><stop offset="1" stop-color="#b92c1f"/></linearGradient>
+    <linearGradient id="cyanG" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b6fff6"/><stop offset=".45" stop-color="#42e8dc"/><stop offset="1" stop-color="#167d8a"/></linearGradient>
+    <linearGradient id="steelG" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9eb6bc"/><stop offset=".5" stop-color="#415862"/><stop offset="1" stop-color="#18262d"/></linearGradient>
+    <linearGradient id="sandG" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f0c77b"/><stop offset=".5" stop-color="#d58d4c"/><stop offset="1" stop-color="#704238"/></linearGradient>
+    <radialGradient id="blast"><stop stop-color="#fffbd0"/><stop offset=".25" stop-color="#ffd45a"/><stop offset=".58" stop-color="#ff6b2c"/><stop offset="1" stop-color="#541b24" stop-opacity="0"/></radialGradient>
+    <pattern id="halftone" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.6" fill="#071018" opacity=".18"/></pattern>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#42e8dc" stroke-opacity=".08" stroke-width="1"/></pattern>
+    </defs>
+<rect width="1600" height="900" fill="#071018"/><rect x="18" y="18" width="1564" height="864" rx="20" fill="#0c1a22" stroke="#314854" stroke-width="3"/>
+<text x="60" y="78" fill="#42e8dc" font-family="Arial Black" font-size="18" letter-spacing="5">BLACK HORIZON // CLASSIFIED MISSION RECORD</text>
+<text x="60" y="143" fill="#f8f2df" font-family="Impact,Arial Black" font-size="72">CINDER PROTOCOL</text><path d="M60 162H670" stroke="#ff6b2c" stroke-width="8"/>
+<!-- panel 1 -->
+<g><rect x="60" y="198" width="925" height="255" rx="12" fill="#122b3a" stroke="#f8f2df" stroke-width="7"/><path d="M60 380L245 285 390 360 555 248 730 358 985 262V453H60Z" fill="#243747"/><path d="M190 315L490 265 700 315 520 348Z" fill="#101b24" stroke="#071018" stroke-width="10"/><circle cx="786" cy="245" r="85" fill="#ffd45a" opacity=".18"/><path d="M740 247L815 222" stroke="#ff6b2c" stroke-width="8"/><text x="86" y="232" fill="#ff8b50" font-family="Arial Black" font-size="20">01 // INSERTION</text><rect x="690" y="326" width="266" height="95" rx="7" fill="#071018" opacity=".9"/><text x="712" y="355" fill="#f8f2df" font-family="Arial" font-size="20">A stolen isotope core.</text><text x="712" y="384" fill="#f8f2df" font-family="Arial" font-size="20">A dead transponder.</text><text x="712" y="412" fill="#ff6b2c" font-family="Arial Black" font-size="18">SIX HOURS LEFT.</text></g>
+<!-- panel 2 -->
+<g><rect x="1015" y="198" width="525" height="255" rx="12" fill="#7d4137" stroke="#f8f2df" stroke-width="7"/><path d="M1020 414Q1150 318 1280 390T1540 330V453H1015Z" fill="#d28a4c"/><path d="M1120 380L1215 315 1315 390" fill="none" stroke="#071018" stroke-width="12"/><circle cx="1360" cy="307" r="76" fill="url(#blast)"/><text x="1042" y="232" fill="#ffdb73" font-family="Arial Black" font-size="20">02 // THE AMBUSH</text><text x="1044" y="278" fill="#f8f2df" font-family="Arial Black" font-size="27">THREE CALLSIGNS</text><text x="1044" y="313" fill="#f8f2df" font-family="Arial Black" font-size="27">WENT SILENT.</text><text x="1044" y="350" fill="#42e8dc" font-family="Arial Black" font-size="22">ONE KEPT MOVING.</text></g>
+<!-- panel 3 -->
+<g><rect x="60" y="485" width="600" height="350" rx="12" fill="#c07843" stroke="#f8f2df" stroke-width="7"/><path d="M60 720L180 610 310 690 430 565 560 690 660 610V835H60Z" fill="#303844"/><g transform="translate(366 710) scale(1.8)"><g transform="translate(0 0) rotate(0) scale(0.75)">
+      <ellipse cy="25" rx="30" ry="11" fill="#000" opacity=".28"/>
+      <path d="M-11 12L-9.050252531694166 39M11 12L17.0 39" stroke="#17242b" stroke-width="12" stroke-linecap="round"/>
+      <path d="M-10 10L-8.050252531694166 34M10 10L17.0 34" stroke="#4d6959" stroke-width="8" stroke-linecap="round"/>
+      <rect x="-23" y="-24" width="46" height="46" rx="12" fill="#4d6959" stroke="#061018" stroke-width="6"/>
+      <path d="M-20-9H20V13H-20Z" fill="#263b3b" opacity=".92"/>
+      <circle cy="-37" r="15" fill="#c98e67" stroke="#061018" stroke-width="5"/>
+      <path d="M-16-41Q0-60 17-42V-33Q0-42-16-33Z" fill="#17242b"/>
+      <path d="M-11-38H-2M3-38H12" stroke="#42e8dc" stroke-width="4" stroke-linecap="round"/>
+      <path d="M-18-9L-8.828427124746192-29M18-9L8.828427124746192-29" stroke="#c98e67" stroke-width="9" stroke-linecap="round"/>
+      <path d="M0-22V-61" stroke="#131b20" stroke-width="9"/><rect x="-6" y="-69" width="12" height="43" rx="3" fill="#26333a" stroke="#061018" stroke-width="4"/>
+      <path d="M14-48Q33.53553390593274-57 40.53553390593274-39" fill="none" stroke="#17242b" stroke-width="8" stroke-linecap="round"/>
+      <path d="M-16 4H-5M5 4H16" stroke="#42e8dc" stroke-width="3"/></g></g><text x="88" y="522" fill="#071018" font-family="Arial Black" font-size="20">03 // NO TURNING BACK</text><rect x="85" y="550" width="250" height="125" fill="#f8f2df" stroke="#071018" stroke-width="6"/><text x="105" y="585" fill="#071018" font-family="Arial Black" font-size="22">RANGER ONE</text><text x="105" y="617" fill="#071018" font-family="Arial" font-size="20">burned the orders</text><text x="105" y="646" fill="#071018" font-family="Arial" font-size="20">and followed the convoy.</text></g>
+<!-- panel 4 -->
+<g><rect x="690" y="485" width="430" height="350" rx="12" fill="#102934" stroke="#f8f2df" stroke-width="7"/><path d="M730 756H1080V805H730Z" fill="#26383f"/><rect x="790" y="605" width="230" height="145" rx="18" fill="#20383b" stroke="#071018" stroke-width="12"/><circle cx="905" cy="678" r="52" fill="#ffd45a" filter="url(#glow)"/><path d="M905 642V714M869 678H941" stroke="#071018" stroke-width="15"/><text x="716" y="522" fill="#42e8dc" font-family="Arial Black" font-size="20">04 // THE CORE</text><text x="720" y="568" fill="#f8f2df" font-family="Arial Black" font-size="25">CONTAINMENT FAILING.</text><text x="720" y="805" fill="#ff6b2c" font-family="Arial Black" font-size="22">RECOVER IT OR LOSE IT.</text></g>
+<!-- panel 5 -->
+<g><rect x="1150" y="485" width="390" height="350" rx="12" fill="#6f342f" stroke="#f8f2df" stroke-width="7"/><circle cx="1430" cy="590" r="130" fill="url(#blast)" opacity=".5"/><g transform="translate(1345 700) scale(1.65)"><g transform="translate(0 0) rotate(0) scale(0.85)">
+      <ellipse cy="25" rx="30" ry="11" fill="#000" opacity=".28"/>
+      <path d="M-11 12L-21.0 39M11 12L21.0 39" stroke="#17242b" stroke-width="12" stroke-linecap="round"/>
+      <path d="M-10 10L-20.0 34M10 10L20.0 34" stroke="#4d6959" stroke-width="8" stroke-linecap="round"/>
+      <rect x="-23" y="-24" width="46" height="46" rx="12" fill="#4d6959" stroke="#061018" stroke-width="6"/>
+      <path d="M-20-9H20V13H-20Z" fill="#263b3b" opacity=".92"/>
+      <circle cy="-37" r="15" fill="#c98e67" stroke="#061018" stroke-width="5"/>
+      <path d="M-16-41Q0-60 17-42V-33Q0-42-16-33Z" fill="#17242b"/>
+      <path d="M-11-38H-2M3-38H12" stroke="#42e8dc" stroke-width="4" stroke-linecap="round"/>
+      <path d="M-18-9L-2.0-29M18-9L2.0-29" stroke="#c98e67" stroke-width="9" stroke-linecap="round"/>
+      <path d="M0-22V-61" stroke="#131b20" stroke-width="9"/><rect x="-6" y="-69" width="12" height="43" rx="3" fill="#26333a" stroke="#061018" stroke-width="4"/>
+      <path d="M14-48Q25.0-57 32.0-39" fill="none" stroke="#17242b" stroke-width="8" stroke-linecap="round"/>
+      <path d="M-16 4H-5M5 4H16" stroke="#42e8dc" stroke-width="3"/></g></g><text x="1176" y="522" fill="#ffd45a" font-family="Arial Black" font-size="20">05 // THE PROTOCOL</text><text x="1175" y="565" fill="#f8f2df" font-family="Arial Black" font-size="25">RECOVER.</text><text x="1175" y="598" fill="#f8f2df" font-family="Arial Black" font-size="25">EXFIL.</text><text x="1175" y="631" fill="#ff6b2c" font-family="Arial Black" font-size="25">DENY.</text></g>
+<text x="800" y="868" text-anchor="middle" fill="#8ea2aa" font-family="Arial Black" font-size="16" letter-spacing="4">ONE OPERATIVE // SIX KILL ZONES // ZERO MARGIN</text>
+</svg>
