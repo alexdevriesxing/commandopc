@@ -1,0 +1,33 @@
+name: Assemble game source
+
+on:
+  push:
+    branches: [agent/operation-cinder-web-game]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/operation-cinder-web-game
+          fetch-depth: 0
+      - name: Assemble source
+        run: |
+          mkdir -p src
+          cat .source/game-* > src/game.js
+          rm -rf .source
+          rm -f .github/workflows/bootstrap.yml
+      - name: Validate
+        run: npm run check
+      - name: Commit assembled build
+        run: |
+          git config user.name "OpenAI Codex"
+          git config user.email "codex@openai.com"
+          git add -A
+          git commit -m "Build Operation Cinder web game"
+          git push origin HEAD:agent/operation-cinder-web-game
