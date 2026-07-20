@@ -1,0 +1,198 @@
+ rand(-40, 40), life: .2, size: rand(5, 10), color: '#e6ca91', shape: 'smoke',
+      }));
+    }
+
+    this.x += mx * speed * dt;
+    this.y += my * speed * dt;
+    this.x = clamp(this.x, 54, W - 54);
+    this.y = clamp(this.y, game.cameraY + 95, game.cameraY + H - 60);
+    if (Math.abs(mx) + Math.abs(my) > .05) this.walk += dt * (this.dashTimer > 0 ? 20 : 10);
+
+    const fire = input.mouse.down || input.keys.has('KeyJ') || input.touchFire;
+    if (fire && this.reloadTimer <= 0) this.shoot(game);
+    if ((input.consume('KeyR') || (this.weapon.ammo <= 0 && fire)) && this.reloadTimer <= 0) this.reload();
+    if (input.consume('KeyQ') || input.consume('Tab')) this.cycleWeapon();
+    if ((input.consume('Space') || input.touchGrenade) && this.grenades > 0) this.throwGrenade(game);
+  }
+
+  reload() {
+    if (this.weapon.ammo >= this.weapon.mag || this.weapon.reserveAmmo <= 0 || this.reloadTimer > 0) return;
+    this.reloadTimer = this.weapon.reload;
+    audio.sfx('reload');
+  }
+
+  shoot(game) {
+    if (this.fireTimer > 0 || this.weapon.ammo <= 0) return;
+    this.fireTimer = this.weapon.rate;
+    this.weapon.ammo--;
+    this.muzzle = 0.055;
+    game.shake += this.weapon.kick * 0.28;
+    audio.sfx(this.weapon.sound, .9);
+
+    const muzzleX = this.x + Math.cos(this.aim) * 28;
+    const muzzleY = this.y + Math.sin(this.aim) * 28;
+    for (let i = 0; i < this.weapon.pellets; i++) {
+      const a = this.aim + rand(-this.weapon.spread, this.weapon.spread);
+      game.projectiles.push(new Projectile(muzzleX, muzzleY, a, this.weapon.speed, this.weapon.damage, 'player', {
+        color: this.weapon.color,
+        explosive: this.weapon.explosive,
+        pierce: this.weapon.pierce || 0,
+        radius: this.weapon.explosive ? 7 : 4,
+        life: this.weapon.explosive ? 1.1 : 1.2,
+      }));
+    }
+
+    for (let i = 0; i < 5; i++) game.particles.push(new Particle(muzzleX, muzzleY, {
+      vx: Math.cos(this.aim + rand(-.45, .45)) * rand(90, 260),
+      vy: Math.sin(this.aim + rand(-.45, .45)) * rand(90, 260),
+      life: rand(.05, .13), size: rand(2, 6), color: this.weapon.color, glow: 14,
+    }));
+    game.particles.push(new Particle(this.x - Math.sin(this.aim) * 8, this.y + Math.cos(this.aim) * 8, {
+      vx: -Math.sin(this.aim) * rand(90, 160) + rand(-25, 25),
+      vy: Math.cos(this.aim) * rand(90, 160) + rand(-25, 25),
+      life: .45, size: 3, color: '#d7ad57', gravity: 300, shape: 'square',
+    }));
+  }
+
+  throwGrenade(game) {
+    this.grenades--;
+    const a = this.aim;
+    game.projectiles.push(new Projectile(this.x, this.y, a, 420, 115, 'player', {
+      color: '#d7ff5a', grenade: true, explosive: true, life: 0.92, trail: false, radius: 8, bounces: 1,
+    }));
+    audio.sfx('launcher', .55);
+  }
+
+  takeDamage(amount, game) {
+    if (this.invuln > 0 || this.dead) return;
+    let damage = amount;
+    if (this.armor > 0) {
+      const blocked = Math.min(this.armor, damage * .7);
+      this.armor -= blocked;
+      damage -= blocked * .55;
+    }
+    this.hp -= damage;
+    this.invuln = 0.34;
+    this.hurtFlash = 0.22;
+    game.shake += 9;
+    game.flash = Math.max(game.flash, .12);
+    audio.sfx('hurt');
+    for (let i = 0; i < 12; i++) game.particles.push(new Particle(this.x, this.y, {
+      vx: rand(-180, 180), vy: rand(-180, 180), life: rand(.1, .3), size: rand(2, 6), color: this.armor > 0 ? '#77d9e8' : '#ff5c4e', shape: 'spark',
+    }));
+    if (this.hp <= 0) {
+      this.hp = 0;
+      this.dead = true;
+      game.playerKilled();
+    }
+  }
+
+  pickup(item, game) {
+    if (item.type === 'health') this.hp = Math.min(this.maxHp, this.hp + 38);
+    if (item.type === 'armor') this.armor = Math.min(this.maxArmor, this.armor + 45);
+    if (item.type === 'grenade') this.grenades = Math.min(8, this.grenades + 2);
+    if (item.type === 'ammo') {
+      this.weapon.reserveAmmo = Math.min(this.weapon.reserve, this.weapon.reserveAmmo + Math.ceil(this.weapon.reserve * .36));
+    }
+    if (item.type === 'weapon') {
+      this.equip(item.value, true);
+      game.announce(`${WEAPONS[item.value].name} ACQUIRED`, 2.2);
+    }
+    audio.sfx('pickup');
+    game.score += 100;
+  }
+
+  draw(c, cameraY) {
+    const y = this.y - cameraY;
+    const bob = Math.sin(this.walk) * 2;
+    const leg = Math.sin(this.walk) * 7;
+    const alpha = this.invuln > 0 && Math.floor(this.invuln * 18) % 2 === 0 ? .42 : 1;
+    c.save(); c.globalAlpha = alpha; c.translate(this.x, y + bob); c.rotate(this.aim + Math.PI / 2);
+
+    c.fillStyle = 'rgba(0,0,0,.28)';
+    c.beginPath(); c.ellipse(0, 18, 24, 10, 0, 0, TAU); c.fill();
+
+    c.strokeStyle = '#10181d'; c.lineWidth = 10; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(-8, 13); c.lineTo(-10 + leg, 27); c.moveTo(8, 13); c.lineTo(10 - leg, 27); c.stroke();
+    c.strokeStyle = '#34574c'; c.lineWidth = 8;
+    c.beginPath(); c.moveTo(-7, 10); c.lineTo(-9 + leg, 23); c.moveTo(7, 10); c.lineTo(9 - leg, 23); c.stroke();
+
+    c.fillStyle = this.hurtFlash > 0 ? '#ffb0a0' : '#3f6a5b';
+    c.strokeStyle = '#071018'; c.lineWidth = 5;
+    roundRect(c, -16, -18, 32, 37, 9); c.fill(); c.stroke();
+    c.fillStyle = '#d8b080'; c.beginPath(); c.arc(0, -25, 12, 0, TAU); c.fill(); c.stroke();
+    c.fillStyle = '#19272b'; c.beginPath(); c.arc(0, -29, 13, Math.PI, TAU); c.fill();
+    c.fillStyle = '#42e8dc'; c.fillRect(-10, -25, 20, 4);
+
+    c.strokeStyle = '#d8b080'; c.lineWidth = 8; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(-12, -7); c.lineTo(-5, -21); c.moveTo(12, -7); c.lineTo(5, -21); c.stroke();
+    c.strokeStyle = '#172126'; c.lineWidth = 7;
+    c.beginPath(); c.moveTo(-3, -16); c.lineTo(0, -44); c.stroke();
+    c.fillStyle = '#202c31'; c.fillRect(-5, -51, 10, 35);
+    c.fillStyle = '#7b8c85'; c.fillRect(-3, -56, 6, 11);
+    if (this.muzzle > 0) {
+      c.fillStyle = this.weapon.color;
+      c.shadowColor = this.weapon.color; c.shadowBlur = 18;
+      c.beginPath(); c.moveTo(0, -60); c.lineTo(-8, -77); c.lineTo(0, -71); c.lineTo(9, -78); c.closePath(); c.fill();
+    }
+    c.restore();
+
+    if (this.reloadTimer > 0) {
+      const p = 1 - this.reloadTimer / this.weapon.reload;
+      c.save(); c.strokeStyle = '#071018'; c.lineWidth = 7; c.beginPath(); c.arc(this.x, y - 48, 24, -Math.PI / 2, -Math.PI / 2 + TAU); c.stroke();
+      c.strokeStyle = '#42e8dc'; c.lineWidth = 4; c.beginPath(); c.arc(this.x, y - 48, 24, -Math.PI / 2, -Math.PI / 2 + TAU * p); c.stroke(); c.restore();
+    }
+  }
+}
+
+class Enemy {
+  constructor(x, y, typeKey, levelScale = 1) {
+    this.x = x; this.y = y;
+    this.typeKey = typeKey;
+    Object.assign(this, ENEMY_TYPES[typeKey]);
+    this.maxHp = this.hp * (1 + (levelScale - 1) * .58);
+    this.hp = this.maxHp;
+    this.speed *= rand(.9, 1.08);
+    this.fireTimer = rand(.1, this.fireRate);
+    this.radius = this.radius;
+    this.angle = Math.PI / 2;
+    this.phase = rand(TAU);
+    this.walk = rand(TAU);
+    this.dead = false;
+    this.deathTimer = 0;
+    this.hitFlash = 0;
+    this.stagger = 0;
+    this.telegraph = 0;
+    this.burst = 0;
+    this.burstTimer = 0;
+    this.orbitDir = Math.random() < .5 ? -1 : 1;
+    this.spawnY = y;
+    this.bossPhase = 1;
+  }
+
+  update(dt, game) {
+    if (this.dead) {
+      this.deathTimer += dt;
+      return this.deathTimer < 1.6;
+    }
+    this.fireTimer -= dt;
+    this.hitFlash -= dt;
+    this.stagger -= dt;
+    this.phase += dt;
+    this.angle = angleTo(this, game.player);
+    const d = Math.hypot(game.player.x - this.x, game.player.y - this.y);
+    let mx = 0, my = 0;
+
+    if (this.stagger <= 0) {
+      switch (this.behavior) {
+        case 'rush':
+          mx = Math.cos(this.angle); my = Math.sin(this.angle);
+          if (d < 190) { mx *= -.4; my *= -.4; }
+          break;
+        case 'strafe': {
+          const toward = d > 390 ? 1 : d < 250 ? -1 : 0;
+          mx = Math.cos(this.angle) * toward + Math.cos(this.angle + Math.PI / 2) * this.orbitDir * .7;
+          my = Math.sin(this.angle) * toward + Math.sin(this.angle + Math.PI / 2) * this.orbitDir * .7;
+          break;
+        }
+        case 'grenade': {
