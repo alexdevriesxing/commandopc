@@ -1,0 +1,204 @@
+s.floating.length = 0;
+    this.weatherParticles.length = 0;
+    this.bossDefeated = false;
+    this.coreRecovered = false;
+    this.missionCompleteTimer = 0;
+    this.levelStats = { scoreStart: this.score, killsStart: this.kills, time: 0, damage: 0 };
+    this.generateWorld();
+    this.cameraY = this.level.length - H;
+    this.targetCameraY = this.cameraY;
+    this.player.resetPosition(this);
+    this.player.y = this.level.length - 140;
+    this.cameraY = this.level.length - H;
+    this.setState('briefing');
+    audio.setPattern(this.level.music);
+  }
+
+  generateWorld() {
+    this.props = [];
+    this.targets = [];
+    this.spawnPlan = [];
+    this.spawnCursor = 0;
+    const types = this.level.props;
+    const seed = this.level.id * 991;
+    for (let y = 180; y < this.level.length - 100; y += 120) {
+      const density = hash(seed + y * .071);
+      const count = density > .72 ? 3 : density > .28 ? 2 : 1;
+      for (let j = 0; j < count; j++) {
+        const x = 40 + hash(seed + y * .12 + j * 9.7) * (W - 80);
+        const type = types[Math.floor(hash(seed + y * .023 + j * 3.1) * types.length)];
+        this.props.push({ x, y: y + hash(seed + y + j) * 80, type, scale: .7 + hash(seed + x + y) * .75, rot: hash(seed + x) * TAU });
+      }
+    }
+
+    const enemySpacing = 165 / this.level.intensity;
+    let wave = 0;
+    for (let y = this.level.length - 520; y > 430; y -= enemySpacing) {
+      const count = 1 + (hash(seed + y * .31) > .64 ? 1 : 0) + (this.levelIndex > 2 && hash(seed + y * .19) > .82 ? 1 : 0);
+      for (let i = 0; i < count; i++) {
+        const type = this.level.enemies[Math.floor(hash(seed + y * .47 + i * 11) * this.level.enemies.length)];
+        const lane = ((wave + i) % 5 + .5) / 5;
+        const x = 100 + lane * (W - 200) + rand(-80, 80);
+        this.spawnPlan.push({ x: clamp(x, 70, W - 70), y: y + rand(-55, 55), type });
+      }
+      wave++;
+    }
+    this.spawnPlan.sort((a, b) => b.y - a.y);
+
+    if (this.level.relays) {
+      const type = this.levelIndex === 4 ? 'pump' : 'relay';
+      for (let i = 0; i < this.level.relays; i++) {
+        this.targets.push({
+          x: 210 + (i % 2) * 860 + rand(-60, 60),
+          y: this.level.length - 1150 - i * ((this.level.length - 1900) / this.level.relays),
+          type, hp: type === 'pump' ? 360 : 260, maxHp: type === 'pump' ? 360 : 260, dead: false, phase: rand(TAU),
+        });
+      }
+    }
+    if (this.level.convoy) {
+      this.targets.push({ x: W / 2, y: 540, type: 'convoy', hp: 920, maxHp: 920, dead: false, phase: 0 });
+    }
+    if (this.level.boss) {
+      this.targets.push({ x: W / 2, y: 180, type: 'core', hp: 1, maxHp: 1, dead: false, locked: true, phase: 0 });
+    }
+  }
+
+  announce(message, duration = 1.8) {
+    this.announceText = message;
+    this.announceTimer = duration;
+  }
+
+  showToast(message, duration = 1800) {
+    toastEl.textContent = message;
+    toastEl.classList.add('is-visible');
+    clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => toastEl.classList.remove('is-visible'), duration);
+  }
+
+  update(dt) {
+    this.time += dt;
+    this.stateTime += dt;
+    this.screenButtons = [];
+    this.announceTimer -= dt;
+    this.flash -= dt;
+    this.shake = Math.max(0, this.shake - dt * 26);
+    if (this.slowMo > 0) this.slowMo -= dt;
+
+    if (input.consume('KeyM')) audio.toggle();
+
+    if (this.state === 'menu') this.updateMenu(dt);
+    else if (this.state === 'intro') this.updateIntro(dt);
+    else if (this.state === 'briefing') this.updateBriefing(dt);
+    else if (this.state === 'playing') this.updatePlaying(dt);
+    else if (this.state === 'paused') this.updatePause(dt);
+    else if (this.state === 'victory') this.updateVictory(dt);
+    else if (this.state === 'campaignVictory') this.updateCampaignVictory(dt);
+    else if (this.state === 'defeat') this.updateDefeat(dt);
+    else if (this.state === 'missionSelect') this.updateMissionSelect(dt);
+    else if (this.state === 'howto' || this.state === 'credits') this.updateInfo(dt);
+  }
+
+  updateMenu() {
+    if (input.consume('ArrowDown') || input.consume('KeyS')) { this.menuIndex = (this.menuIndex + 1) % this.menuItems.length; audio.sfx('ui'); }
+    if (input.consume('ArrowUp') || input.consume('KeyW')) { this.menuIndex = (this.menuIndex - 1 + this.menuItems.length) % this.menuItems.length; audio.sfx('ui'); }
+    if (input.consume('Enter') || input.consume('Space')) this.activateMenu(this.menuIndex);
+  }
+
+  activateMenu(index) {
+    audio.init();
+    audio.sfx('confirm');
+    if (index === 0) this.startCampaign(false);
+    if (index === 1) this.setState('missionSelect');
+    if (index === 2) this.setState('howto');
+    if (index === 3) this.setState('credits');
+  }
+
+  updateIntro() {
+    if (input.consume('Escape')) this.startLevel(0);
+    if (input.consume('Enter') || input.consume('Space') || input.consume('ArrowRight')) this.advanceIntro();
+    if (input.consume('ArrowLeft') && this.introIndex > 0) { this.introIndex--; this.stateTime = 0; audio.sfx('ui'); }
+  }
+
+  advanceIntro() {
+    audio.sfx('ui');
+    if (this.introIndex < INTRO_PANELS.length - 1) {
+      this.introIndex++;
+      this.stateTime = 0;
+    } else this.startLevel(0);
+  }
+
+  updateBriefing() {
+    if (input.consume('Enter') || input.consume('Space') || input.mouse.clicked) {
+      this.setState('playing');
+      audio.setPattern(this.level.music);
+      this.announce(this.level.objective, 2.4);
+    }
+  }
+
+  updatePause() {
+    if (input.consume('KeyP') || input.consume('Escape') || input.consume('Enter')) {
+      this.setState('playing');
+      audio.setPattern(this.level.music);
+    }
+  }
+
+  updateVictory() {
+    if (input.consume('Enter') || input.consume('Space') || input.mouse.clicked) {
+      if (this.levelIndex < LEVELS.length - 1) this.startLevel(this.levelIndex + 1);
+      else this.setState('campaignVictory');
+    }
+    if (input.consume('Escape')) this.setState('menu');
+  }
+
+  updateCampaignVictory() {
+    if (input.consume('Enter') || input.consume('Space') || input.mouse.clicked) this.setState('menu');
+  }
+
+  updateDefeat() {
+    if (input.consume('Enter') || input.consume('Space') || input.mouse.clicked) {
+      this.score = this.levelStats.scoreStart;
+      this.kills = this.levelStats.killsStart;
+      this.player.hp = 100;
+      this.player.armor = 35;
+      this.startLevel(this.levelIndex);
+    }
+    if (input.consume('Escape')) this.setState('menu');
+  }
+
+  updateMissionSelect() {
+    if (input.consume('Escape')) this.setState('menu');
+  }
+
+  updateInfo() {
+    if (input.consume('Escape') || input.consume('Enter') || input.consume('Space') || input.mouse.clicked) this.setState('menu');
+  }
+
+  updatePlaying(dt) {
+    this.levelStats.time += dt;
+    if (input.consume('KeyP') || input.consume('Escape')) {
+      this.setState('paused');
+      return;
+    }
+
+    this.player.update(dt, this);
+    this.targetCameraY = clamp(this.player.y - H * .66, 0, this.level.length - H);
+    this.cameraY = lerp(this.cameraY, this.targetCameraY, 1 - Math.pow(.0008, dt));
+
+    while (this.spawnCursor < this.spawnPlan.length && this.spawnPlan[this.spawnCursor].y > this.cameraY - 180) {
+      const s = this.spawnPlan[this.spawnCursor];
+      if (s.y < this.cameraY + H + 260) this.enemies.push(new Enemy(s.x, s.y, s.type, this.level.intensity));
+      this.spawnCursor++;
+    }
+
+    if (this.level.boss && !this.bossDefeated && this.player.y < 900 && !this.enemies.some((e) => e.typeKey === 'boss')) {
+      this.enemies.push(new Enemy(W / 2, 470, 'boss', 2));
+      this.announce('COLONEL VESAL — CINDER COMMAND', 3);
+      audio.setPattern('finale');
+    }
+
+    this.enemies = this.enemies.filter((e) => e.update(dt, this));
+    this.projectiles = this.projectiles.filter((p) => p.update(dt, this));
+    this.particles = this.particles.filter((p) => p.update(dt));
+    this.decals = this.decals.filter((d) => d.update(dt));
+    this.pickups = this.pickups.filter((p) => p.update(dt));
+    this.floating = this.floating.filter((f) => f.update(
