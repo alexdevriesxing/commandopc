@@ -1,10 +1,12 @@
-const CACHE = 'commando-pc-v1';
+const CACHE = 'commando-pc-v2';
+const CHUNKS = Array.from({ length: 15 }, (_, index) => `./src/chunks/game-${String(index).padStart(2, '0')}.part`);
 const ASSETS = [
   './', './index.html', './styles.css', './src/game.js',
-  './assets/logo.svg', './assets/favicon.svg', './assets/key-art.svg', './manifest.webmanifest'
+  './assets/logo.svg', './assets/favicon.svg', './assets/key-art.svg', './manifest.webmanifest',
+  ...CHUNKS
 ];
 self.addEventListener('install', (event) => event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS))));
-self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))));
+self.addEventListener('activate', (event) => event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))));
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {

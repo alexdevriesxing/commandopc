@@ -1,11 +1,18 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
-const html = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const css = fs.readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
-const js = fs.readFileSync(new URL('../src/game.js', import.meta.url), 'utf8');
+const root = new URL('../', import.meta.url);
+const html = fs.readFileSync(new URL('index.html', root), 'utf8');
+const css = fs.readFileSync(new URL('styles.css', root), 'utf8');
+const loader = fs.readFileSync(new URL('src/game.js', root), 'utf8');
+const chunkDir = new URL('src/chunks/', root);
+const chunkFiles = fs.readdirSync(chunkDir).filter((name) => name.endsWith('.part')).sort();
+const js = chunkFiles.map((name) => fs.readFileSync(new URL(name, chunkDir), 'utf8')).join('');
 
+assert.equal(chunkFiles.length, 15, 'expected all source chunks');
+assert.doesNotThrow(() => new Function(js), 'assembled game source must parse');
 assert.match(html, /canvas id="game"/);
+assert.match(loader, /parts\.join/);
 assert.match(js, /assets\/key-art\.svg/);
 assert.match(css, /aspect-ratio:\s*16\s*\/\s*9/);
 assert.match(js, /const LEVELS = \[/);
@@ -16,4 +23,4 @@ assert.match(js, /class Game/);
 assert.equal((js.match(/codename:/g) || []).length, 6, 'expected six campaign missions');
 assert.ok((js.match(/name: '/g) || []).length >= 12, 'expected a varied arsenal and enemy roster');
 
-console.log('Smoke checks passed: shell, assets, campaign, audio, weapons, and enemies are present.');
+console.log('Smoke checks passed: loader, source, shell, assets, campaign, audio, weapons, and enemies are present.');

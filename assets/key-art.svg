@@ -1,61 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
-<title id="title">Commando PC Operation Cinder key art</title>
-<desc id="desc">An original comic-book hero crosses a desert battlefield toward a mountain facility while carrying a glowing plutonium retrieval case.</desc>
-<defs>
-  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#112b3b"/><stop offset=".5" stop-color="#d36a3d"/><stop offset="1" stop-color="#f3c779"/></linearGradient>
-  <linearGradient id="sand" x1="0" x2="1"><stop stop-color="#bd683f"/><stop offset=".55" stop-color="#e5a852"/><stop offset="1" stop-color="#f0d28c"/></linearGradient>
-  <linearGradient id="case" x1="0" x2="1"><stop stop-color="#143b3c"/><stop offset="1" stop-color="#42e8dc"/></linearGradient>
-  <radialGradient id="sun"><stop stop-color="#fffbd1"/><stop offset=".5" stop-color="#ffbc4e" stop-opacity=".8"/><stop offset="1" stop-color="#ff7435" stop-opacity="0"/></radialGradient>
-  <filter id="ink"><feDropShadow dx="7" dy="11" stdDeviation="1" flood-color="#061019" flood-opacity=".9"/></filter>
-  <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#061019" opacity=".18"/></pattern>
-</defs>
-<rect width="1600" height="900" fill="url(#sky)"/>
-<circle cx="1270" cy="170" r="240" fill="url(#sun)"/>
-<path d="M0 470 195 315 330 390 490 245 660 420 840 285 1020 410 1180 250 1390 420 1600 310v590H0z" fill="#182733" stroke="#071018" stroke-width="16"/>
-<path d="M0 600Q260 490 520 610t510-20q280-130 570 10v300H0z" fill="url(#sand)" stroke="#7c3e33" stroke-width="12"/>
-<path d="M0 610Q260 500 520 620t510-20q280-130 570 10v290H0z" fill="url(#dots)" opacity=".35"/>
-
-<g fill="#0c171f" stroke="#061019" stroke-width="10">
-  <path d="M1110 380h300v230h-300z"/><path d="M1170 300h180v90h-180z"/>
-  <path d="M1080 610h370l-30 75h-310z"/>
-  <path d="M1160 440h70v170h-70zM1290 440h70v170h-70z" fill="#f0c06b" opacity=".7"/>
-  <path d="M1205 300v-90h24v90M1315 300V180h24v120"/>
-</g>
-<path d="M1040 500c-55-90-25-160 50-210-20 88 70 98 32 192 74-42 115 15 102 86-62-28-120 8-184-68z" fill="#ff6b2c" stroke="#061019" stroke-width="12"/>
-<path d="M1070 500c-18-52 3-92 42-121-6 53 38 64 30 111 34-21 54 3 52 41-44-9-81 2-124-31z" fill="#ffd45a"/>
-
-<g filter="url(#ink)" stroke="#061019" stroke-width="13" stroke-linejoin="round">
-  <path d="M480 365c64-28 144 14 162 76l-8 132-155 35-78-132z" fill="#33594e"/>
-  <path d="m489 371 26-95 82 14 28 112z" fill="#d59a6c"/>
-  <path d="m510 300 18-54 70 10 15 50z" fill="#18232a"/>
-  <path d="m489 398-105 70 38 52 105-52z" fill="#d59a6c"/>
-  <path d="m407 455-96-38-17 31 101 73z" fill="#243d3d"/>
-  <path d="m302 410-65-28-20 31 76 42z" fill="#071018"/>
-  <path d="m603 431 124-55 22 54-124 74z" fill="#d59a6c"/>
-  <path d="m720 370 145 12 9 34-145 24z" fill="#1a252a"/>
-  <path d="m537 577-30 180 72 8 35-163z" fill="#273f3f"/>
-  <path d="m600 585 58 164 70-18-38-183z" fill="#33594e"/>
-  <path d="m495 750-68 70 127 7 26-65z" fill="#1b262b"/>
-  <path d="m656 741-14 77 130-2-45-85z" fill="#1b262b"/>
-  <path d="M461 459c65 27 120 13 181-8l3 151c-66 24-128 28-188 3z" fill="#42695c"/>
-  <path d="m491 455 57 52 69-70" fill="none" stroke="#c8e0b5" stroke-width="10"/>
-  <path d="M519 327c22 28 54 31 81 10" fill="none" stroke="#071018" stroke-width="8"/>
-  <path d="m515 307 27 7m38 2 26 3" stroke-linecap="round"/>
-</g>
-
-<g transform="translate(720 515) rotate(-7)" filter="url(#ink)">
-  <rect width="280" height="160" rx="18" fill="url(#case)" stroke="#061019" stroke-width="13"/>
-  <rect x="88" y="-25" width="104" height="42" rx="12" fill="#132128" stroke="#061019" stroke-width="10"/>
-  <circle cx="140" cy="82" r="39" fill="#d7ff5a" stroke="#061019" stroke-width="9"/>
-  <path d="M140 51v62M109 82h62" stroke="#061019" stroke-width="11"/>
-  <path d="M22 34h54M204 34h54" stroke="#f8f2df" stroke-width="8"/>
-</g>
-
-<g font-family="Impact,Arial Black,sans-serif" filter="url(#ink)">
-  <text x="80" y="142" font-size="115" fill="#f8f2df" stroke="#061019" stroke-width="15" paint-order="stroke">COMMANDO PC</text>
-  <path d="M84 165h780l-38 27H84z" fill="#42e8dc" stroke="#061019" stroke-width="8"/>
-  <text x="88" y="238" font-size="54" fill="#ff6b2c" stroke="#061019" stroke-width="10" paint-order="stroke" letter-spacing="9">OPERATION CINDER</text>
-</g>
-<text x="1090" y="810" font-family="Arial Black,sans-serif" font-size="34" fill="#f8f2df" stroke="#061019" stroke-width="8" paint-order="stroke" letter-spacing="3">RECOVER THE CORE.</text>
-<text x="1135" y="850" font-family="Arial Black,sans-serif" font-size="34" fill="#ff6b2c" stroke="#061019" stroke-width="8" paint-order="stroke" letter-spacing="3">OUTRUN THE FIRE.</text>
+<title id="title">Commando PC Operation Cinder key art</title><desc id="desc">An original comic-book hero crosses a desert battlefield toward a mountain facility while carrying a glowing plutonium retrieval case.</desc>
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#112b3b"/><stop offset=".5" stop-color="#d36a3d"/><stop offset="1" stop-color="#f3c779"/></linearGradient><linearGradient id="sand" x1="0" x2="1"><stop stop-color="#bd683f"/><stop offset=".55" stop-color="#e5a852"/><stop offset="1" stop-color="#f0d28c"/></linearGradient><linearGradient id="case" x1="0" x2="1"><stop stop-color="#143b3c"/><stop offset="1" stop-color="#42e8dc"/></linearGradient><radialGradient id="sun"><stop stop-color="#fffbd1"/><stop offset=".5" stop-color="#ffbc4e" stop-opacity=".8"/><stop offset="1" stop-color="#ff7435" stop-opacity="0"/></radialGradient><filter id="ink"><feDropShadow dx="7" dy="11" stdDeviation="1" flood-color="#061019" flood-opacity=".9"/></filter><pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#061019" opacity=".18"/></pattern></defs>
+<rect width="1600" height="900" fill="url(#sky)"/><circle cx="1270" cy="170" r="240" fill="url(#sun)"/><path d="M0 470 195 315 330 390 490 245 660 420 840 285 1020 410 1180 250 1390 420 1600 310v590H0z" fill="#182733" stroke="#071018" stroke-width="16"/><path d="M0 600Q260 490 520 610t510-20q280-130 570 10v300H0z" fill="url(#sand)" stroke="#7c3e33" stroke-width="12"/><path d="M0 610Q260 500 520 620t510-20q280-130 570 10v290H0z" fill="url(#dots)" opacity=".35"/>
+<g fill="#0c171f" stroke="#061019" stroke-width="10"><path d="M1110 380h300v230h-300z"/><path d="M1170 300h180v90h-180z"/><path d="M1080 610h370l-30 75h-310z"/><path d="M1160 440h70v170h-70zM1290 440h70v170h-70z" fill="#f0c06b" opacity=".7"/><path d="M1205 300v-90h24v90M1315 300V180h24v120"/></g><path d="M1040 500c-55-90-25-160 50-210-20 88 70 98 32 192 74-42 115 15 102 86-62-28-120 8-184-68z" fill="#ff6b2c" stroke="#061019" stroke-width="12"/><path d="M1070 500c-18-52 3-92 42-121-6 53 38 64 30 111 34-21 54 3 52 41-44-9-81 2-124-31z" fill="#ffd45a"/>
+<g filter="url(#ink)" stroke="#061019" stroke-width="13" stroke-linejoin="round"><path d="M480 365c64-28 144 14 162 76l-8 132-155 35-78-132z" fill="#33594e"/><path d="m489 371 26-95 82 14 28 112z" fill="#d59a6c"/><path d="m510 300 18-54 70 10 15 50z" fill="#18232a"/><path d="m489 398-105 70 38 52 105-52z" fill="#d59a6c"/><path d="m407 455-96-38-17 31 101 73z" fill="#243d3d"/><path d="m302 410-65-28-20 31 76 42z" fill="#071018"/><path d="m603 431 124-55 22 54-124 74z" fill="#d59a6c"/><path d="m720 370 145 12 9 34-145 24z" fill="#1a252a"/><path d="m537 577-30 180 72 8 35-163z" fill="#273f3f"/><path d="m600 585 58 164 70-18-38-183z" fill="#33594e"/><path d="m495 750-68 70 127 7 26-65z" fill="#1b262b"/><path d="m656 741-14 77 130-2-45-85z" fill="#1b262b"/><path d="M461 459c65 27 120 13 181-8l3 151c-66 24-128 28-188 3z" fill="#42695c"/><path d="m491 455 57 52 69-70" fill="none" stroke="#c8e0b5" stroke-width="10"/><path d="M519 327c22 28 54 31 81 10" fill="none" stroke="#071018" stroke-width="8"/><path d="m515 307 27 7m38 2 26 3" stroke-linecap="round"/></g>
+<g transform="translate(720 515) rotate(-7)" filter="url(#ink)"><rect width="280" height="160" rx="18" fill="url(#case)" stroke="#061019" stroke-width="13"/><rect x="88" y="-25" width="104" height="42" rx="12" fill="#132128" stroke="#061019" stroke-width="10"/><circle cx="140" cy="82" r="39" fill="#d7ff5a" stroke="#061019" stroke-width="9"/><path d="M140 51v62M109 82h62" stroke="#061019" stroke-width="11"/><path d="M22 34h54M204 34h54" stroke="#f8f2df" stroke-width="8"/></g>
+<g font-family="Impact,Arial Black,sans-serif" filter="url(#ink)"><text x="80" y="142" font-size="115" fill="#f8f2df" stroke="#061019" stroke-width="15" paint-order="stroke">COMMANDO PC</text><path d="M84 165h780l-38 27H84z" fill="#42e8dc" stroke="#061019" stroke-width="8"/><text x="88" y="238" font-size="54" fill="#ff6b2c" stroke="#061019" stroke-width="10" paint-order="stroke" letter-spacing="9">OPERATION CINDER</text></g><text x="1090" y="810" font-family="Arial Black,sans-serif" font-size="34" fill="#f8f2df" stroke="#061019" stroke-width="8" paint-order="stroke" letter-spacing="3">RECOVER THE CORE.</text><text x="1135" y="850" font-family="Arial Black,sans-serif" font-size="34" fill="#ff6b2c" stroke="#061019" stroke-width="8" paint-order="stroke" letter-spacing="3">OUTRUN THE FIRE.</text>
 </svg>

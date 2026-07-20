@@ -1,14 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 92" role="img" aria-labelledby="t d">
 <title id="t">Commando PC: Operation Cinder</title><desc id="d">Angular military arcade logo in orange, cream, and cyan.</desc>
-<defs>
-  <linearGradient id="g" x1="0" x2="1"><stop stop-color="#fff3cf"/><stop offset=".52" stop-color="#f5c45c"/><stop offset="1" stop-color="#ff6b2c"/></linearGradient>
-  <filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="2" flood-color="#000" flood-opacity=".72"/></filter>
-</defs>
-<g filter="url(#s)">
-  <path d="M8 12h480l-17 17H26z" fill="#42e8dc" opacity=".8"/>
-  <text x="10" y="67" fill="url(#g)" stroke="#111b20" stroke-width="8" paint-order="stroke" font-family="Impact,Arial Black,sans-serif" font-size="66" letter-spacing="2">COMMANDO PC</text>
-  <path d="M516 18h232l-17 53H499z" fill="#111b20" stroke="#ff6b2c" stroke-width="3"/>
-  <text x="527" y="43" fill="#f8f2df" font-family="Arial Black,sans-serif" font-size="16" letter-spacing="3">OPERATION</text>
-  <text x="526" y="66" fill="#ff6b2c" font-family="Arial Black,sans-serif" font-size="25" letter-spacing="1">CINDER</text>
-</g>
+<defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#fff3cf"/><stop offset=".52" stop-color="#f5c45c"/><stop offset="1" stop-color="#ff6b2c"/></linearGradient><filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="2" flood-color="#000" flood-opacity=".72"/></filter></defs>
+<g filter="url(#s)"><path d="M8 12h480l-17 17H26z" fill="#42e8dc" opacity=".8"/><text x="10" y="67" fill="url(#g)" stroke="#111b20" stroke-width="8" paint-order="stroke" font-family="Impact,Arial Black,sans-serif" font-size="66" letter-spacing="2">COMMANDO PC</text><path d="M516 18h232l-17 53H499z" fill="#111b20" stroke="#ff6b2c" stroke-width="3"/><text x="527" y="43" fill="#f8f2df" font-family="Arial Black,sans-serif" font-size="16" letter-spacing="3">OPERATION</text><text x="526" y="66" fill="#ff6b2c" font-family="Arial Black,sans-serif" font-size="25" letter-spacing="1">CINDER</text></g>
 </svg>

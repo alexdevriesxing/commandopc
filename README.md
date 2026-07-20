@@ -60,7 +60,7 @@ Touch devices receive an analog movement stick, fire, dash and grenade controls.
 npm run check
 ```
 
-This performs a JavaScript syntax check and verifies that the shell, campaign data, assets, audio engine, weapon roster and enemy roster are present.
+This performs JavaScript syntax checks and verifies that the shell, campaign data, assets, audio engine, weapon roster and enemy roster are present.
 
 ## Asset policy
 
