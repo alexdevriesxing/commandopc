@@ -1,0 +1,70 @@
+, unlocked ? '#42e8dc' : '#58676e', 'left', 900, 'Inter, sans-serif');
+      text(c, unlocked ? level.codename : 'CLASSIFIED', x + 160, y + 58, 22, unlocked ? '#f8f2df' : '#65747a');
+      this.wrapText(c, unlocked ? level.objective : 'Complete the preceding operation to unlock.', x + 160, y + 82, 350, 12, 18, unlocked ? '#9eb0b5' : '#58676e', false);
+      if (unlocked) this.screenButtons.push({ x, y, w, h, action: () => { this.score = 0; this.kills = 0; this.player.resetForCampaign(); for (let k = 0; k < i; k++) if (LEVELS[k].reward) this.player.unlocked.add(LEVELS[k].reward); if (i > 0 && LEVELS[i-1].reward) this.player.equip(LEVELS[i-1].reward, true); this.startLevel(i); } });
+      else { text(c, 'LOCKED', x + w - 24, y + 24, 10, '#ff6b4a', 'right', 900, 'Inter, sans-serif'); }
+    });
+    this.button(c, 64, H - 62, 180, 38, 'BACK', () => this.setState('menu'), false, '#42e8dc');
+  }
+
+  drawMissionBadge(c, x, y, level, unlocked) {
+    c.save(); c.translate(x,y); c.fillStyle = unlocked ? '#071018' : '#1a2328'; c.beginPath(); c.arc(0,0,43,0,TAU); c.fill();
+    c.strokeStyle = unlocked ? '#ff6b2c' : '#526067'; c.lineWidth = 5; c.stroke();
+    text(c, String(level.id).padStart(2,'0'), 0, -4, 24, unlocked ? '#f8f2df' : '#65747a', 'center');
+    text(c, 'OPS', 0, 20, 9, unlocked ? '#42e8dc' : '#526067', 'center', 900, 'Inter, sans-serif'); c.restore();
+  }
+
+  drawHowTo(c) {
+    c.fillStyle = '#071018'; c.fillRect(0, 0, W, H); this.drawTopographic(c, '#ff6b2c');
+    text(c, 'FIELD MANUAL', 70, 72, 38, '#f8f2df');
+    text(c, 'Fast movement, controlled aggression, clean extraction.', 72, 111, 13, '#8ea2aa', 'left', 700, 'Inter, sans-serif');
+    const cards = [
+      ['MOVE + AIM', 'WASD or arrow keys move Ranger One. Aim with the mouse. On touch devices, movement auto-targets the nearest threat.'],
+      ['FIRE + RELOAD', 'Hold the mouse button or J to fire. Press R to reload. Every weapon has a unique cadence, spread, magazine and role.'],
+      ['DASH', 'Tap Shift to burst through fire. The dash grants a brief invulnerability window and is essential against heavy weapons.'],
+      ['GRENADES', 'Press Space to throw a timed fragmentation grenade. Explosions damage clustered enemies and mission targets.'],
+      ['ARSENAL', 'Field pickups restore health, armor, ammunition and grenades. Q cycles through every unlocked weapon.'],
+      ['COMBO', 'Sustain hits and eliminations to build a score multiplier. Hesitation drains it; pressure keeps it alive.'],
+    ];
+    cards.forEach((card, i) => {
+      const col = i % 2, row = Math.floor(i / 2); const x = 70 + col * 580, y = 154 + row * 156;
+      c.fillStyle = 'rgba(255,255,255,.045)'; roundRect(c, x, y, 540, 128, 14); c.fill(); c.strokeStyle = 'rgba(255,255,255,.12)'; c.stroke();
+      c.fillStyle = i % 2 ? '#42e8dc' : '#ff6b2c'; c.fillRect(x, y, 7, 128);
+      text(c, card[0], x + 28, y + 30, 16, '#f8f2df');
+      this.wrapText(c, card[1], x + 28, y + 54, 480, 13, 20, '#9fb0b5', false);
+    });
+    text(c, 'PRESS ENTER / CLICK TO RETURN', W / 2, H - 42, 11, '#ff9564', 'center', 900, 'Inter, sans-serif');
+  }
+
+  drawCredits(c) {
+    c.fillStyle = '#071018'; c.fillRect(0, 0, W, H); this.drawTopographic(c, '#42e8dc');
+    c.fillStyle = 'rgba(255,255,255,.035)'; roundRect(c, 140, 68, 1000, 580, 18); c.fill(); c.strokeStyle = 'rgba(255,255,255,.12)'; c.stroke();
+    text(c, 'CREDITS + PRODUCTION NOTES', W / 2, 116, 34, '#f8f2df', 'center');
+    const items = [
+      ['GAME DESIGN + ENGINE', 'Original HTML5 Canvas architecture'],
+      ['VISUAL DIRECTION', 'Custom modern comic rendering, UI, HUD and key art'],
+      ['MUSIC + SOUND', 'Original real-time WebAudio score and procedural SFX'],
+      ['CAMPAIGN', 'Six mission environments with original characters and fiction'],
+      ['ACCESS', 'Keyboard, mouse, touch controls, responsive presentation'],
+      ['ASSET POLICY', 'No copied franchise art, music, sprites, fonts or placeholder assets'],
+    ];
+    items.forEach((item, i) => {
+      const y = 184 + i * 64; text(c, item[0], 222, y, 11, i % 2 ? '#42e8dc' : '#ff8b57', 'left', 900, 'Inter, sans-serif'); text(c, item[1], 222, y + 25, 15, '#cad4d5', 'left', 650, 'Inter, sans-serif');
+    });
+    this.wrapText(c, 'Operation Cinder is a fictional arcade story. It does not depict real operations, real units, or real individuals, and it avoids real-world flags and faction insignia.', W / 2, 560, 760, 13, 21, '#84979e', false, 'center');
+    text(c, 'PRESS ENTER / CLICK TO RETURN', W / 2, 620, 11, '#ff9564', 'center', 900, 'Inter, sans-serif');
+  }
+
+  loop(now) {
+    let dt = Math.min((now - this.lastTime) / 1000, .033);
+    this.lastTime = now;
+    const simDt = this.slowMo > 0 ? dt * .25 : dt;
+    this.update(simDt);
+    this.draw();
+    input.endFrame();
+    requestAnimationFrame((t) => this.loop(t));
+  }
+}
+
+const game = new Game();
+window.__commandoGame = game;
