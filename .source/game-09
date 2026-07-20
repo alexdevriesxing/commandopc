@@ -1,0 +1,152 @@
+;
+  }
+
+  draw() {
+    ctx.save();
+    ctx.clearRect(0, 0, W, H);
+    this.screenButtons = [];
+    if (this.state === 'menu') this.drawMenu(ctx);
+    else if (this.state === 'intro') this.drawIntro(ctx);
+    else if (this.state === 'briefing') this.drawBriefing(ctx);
+    else if (this.state === 'playing') this.drawPlaying(ctx);
+    else if (this.state === 'paused') { this.drawPlaying(ctx); this.drawPause(ctx); }
+    else if (this.state === 'victory') this.drawVictory(ctx);
+    else if (this.state === 'campaignVictory') this.drawCampaignVictory(ctx);
+    else if (this.state === 'defeat') this.drawDefeat(ctx);
+    else if (this.state === 'missionSelect') this.drawMissionSelect(ctx);
+    else if (this.state === 'howto') this.drawHowTo(ctx);
+    else if (this.state === 'credits') this.drawCredits(ctx);
+    ctx.restore();
+  }
+
+  drawMenu(c) {
+    const pulse = (Math.sin(this.time * 1.7) + 1) * .5;
+    if (this.keyArt.complete) {
+      const kw = this.keyArt.naturalWidth || 1600;
+      const kh = this.keyArt.naturalHeight || 900;
+      c.drawImage(this.keyArt, 0, kh * .16, kw, kh * .84, 0, 0, W, H);
+    } else {
+      const g = c.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#1d3342'); g.addColorStop(.55, '#b65b3d'); g.addColorStop(1, '#e1ad62');
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+    }
+    const vignette = c.createLinearGradient(0, 0, W, 0);
+    vignette.addColorStop(0, 'rgba(4,10,15,.95)'); vignette.addColorStop(.5, 'rgba(4,10,15,.5)'); vignette.addColorStop(1, 'rgba(4,10,15,.05)');
+    c.fillStyle = vignette; c.fillRect(0, 0, W, H);
+    const titleFade = c.createLinearGradient(0, 0, 760, 0);
+    titleFade.addColorStop(0, 'rgba(4,10,15,.98)');
+    titleFade.addColorStop(.68, 'rgba(4,10,15,.78)');
+    titleFade.addColorStop(1, 'rgba(4,10,15,0)');
+    c.fillStyle = titleFade; c.fillRect(0, 0, 820, 270);
+
+    c.save(); c.translate(62, 74);
+    strokeText(c, 'COMMANDO PC', 0, 0, 72, '#f8f2df', '#071018', 14);
+    c.fillStyle = '#42e8dc'; c.fillRect(2, 48, 484, 11);
+    strokeText(c, 'OPERATION CINDER', 0, 92, 33, '#ff6b2c', '#071018', 8);
+    text(c, 'AN ORIGINAL ARCADE CAMPAIGN', 4, 130, 13, '#c7d2d5', 'left', 800, 'Inter, sans-serif');
+    c.restore();
+
+    const startY = 302;
+    this.menuItems.forEach((item, i) => {
+      const selected = i === this.menuIndex;
+      const x = 60, y = startY + i * 62, w = 390, h = 50;
+      this.button(c, x, y, w, h, item, () => this.activateMenu(i), selected, selected ? '#ff6b2c' : '#42e8dc');
+    });
+
+    c.fillStyle = 'rgba(4,10,15,.72)';
+    roundRect(c, 58, 588, 398, 70, 14); c.fill();
+    text(c, 'HIGH SCORE', 78, 609, 11, '#92a8b2', 'left', 800, 'Inter, sans-serif');
+    text(c, formatScore(this.highScore), 78, 637, 25, '#f8f2df');
+    text(c, 'M  AUDIO', 425, 637, 11, pulse > .5 ? '#42e8dc' : '#8da1a9', 'right', 900, 'Inter, sans-serif');
+
+    text(c, 'Fictional combat narrative. Original code, art, music and sound.', W - 34, H - 24, 11, 'rgba(255,255,255,.64)', 'right', 600, 'Inter, sans-serif');
+  }
+
+  button(c, x, y, w, h, label, action, selected = false, accent = '#42e8dc', sub = '') {
+    const hover = input.mouse.x >= x && input.mouse.x <= x + w && input.mouse.y >= y && input.mouse.y <= y + h;
+    c.save();
+    c.fillStyle = selected || hover ? 'rgba(7,16,24,.93)' : 'rgba(7,16,24,.72)';
+    c.strokeStyle = selected || hover ? accent : 'rgba(255,255,255,.16)';
+    c.lineWidth = selected || hover ? 3 : 1.5;
+    roundRect(c, x, y, w, h, 10); c.fill(); c.stroke();
+    if (selected || hover) { c.fillStyle = accent; c.fillRect(x, y + 8, 7, h - 16); }
+    text(c, label, x + 22, y + h / 2 - (sub ? 6 : 0), 17, selected || hover ? '#fff' : '#c8d2d5', 'left');
+    if (sub) text(c, sub, x + 22, y + h / 2 + 14, 10, '#8498a2', 'left', 700, 'Inter, sans-serif');
+    c.restore();
+    this.screenButtons.push({ x, y, w, h, action });
+  }
+
+  drawIntro(c) {
+    c.fillStyle = '#071018'; c.fillRect(0, 0, W, H);
+    const panel = INTRO_PANELS[this.introIndex];
+    const enter = easeOutCubic(clamp(this.stateTime / .55, 0, 1));
+    const margin = 46;
+    c.save();
+    c.translate((1 - enter) * 70, 0);
+    c.globalAlpha = enter;
+    c.fillStyle = '#f5ecd8';
+    roundRect(c, margin, 40, W - margin * 2, H - 80, 16); c.fill();
+    c.strokeStyle = '#071018'; c.lineWidth = 9; c.stroke();
+
+    const artX = 70, artY = 68, artW = 760, artH = 584;
+    c.save();
+    roundRect(c, artX, artY, artW, artH, 8); c.clip();
+    this.drawComicScene(c, panel.scene, artX, artY, artW, artH);
+    c.restore();
+    c.strokeStyle = '#071018'; c.lineWidth = 8; roundRect(c, artX, artY, artW, artH, 8); c.stroke();
+
+    c.fillStyle = '#071018';
+    roundRect(c, 856, 68, 354, 584, 8); c.fill();
+    c.fillStyle = '#ff6b2c'; c.fillRect(878, 92, 62, 8);
+    text(c, panel.kicker, 878, 126, 11, '#8fdedb', 'left', 900, 'Inter, sans-serif');
+    this.wrapText(c, panel.title, 878, 194, 296, 48, 54, '#f8f2df', true);
+    this.wrapText(c, panel.body, 878, 360, 296, 21, 31, '#cad3d2', false);
+    text(c, `${String(this.introIndex + 1).padStart(2, '0')} / ${String(INTRO_PANELS.length).padStart(2, '0')}`, 878, 602, 13, '#ff6b2c', 'left', 900, 'Inter, sans-serif');
+    text(c, 'CLICK / ENTER TO ADVANCE', 1174, 602, 10, '#8ca0a8', 'right', 800, 'Inter, sans-serif');
+    c.restore();
+
+    this.button(c, W - 204, 16, 158, 38, 'SKIP INTRO', () => this.startLevel(0), false, '#ff6b2c');
+  }
+
+  wrapText(c, value, x, y, maxWidth, size, lineHeight, color, heavy = false, align = 'left') {
+    c.save();
+    c.font = `${heavy ? 900 : 650} ${size}px ${heavy ? 'Arial Black, Impact, sans-serif' : 'Inter, sans-serif'}`;
+    c.textAlign = align;
+    c.textBaseline = 'top';
+    c.fillStyle = color;
+    const words = value.split(' ');
+    const lines = [];
+    let line = '';
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (c.measureText(test).width > maxWidth && line) { lines.push(line); line = word; }
+      else line = test;
+    }
+    if (line) lines.push(line);
+    lines.forEach((l, i) => c.fillText(l, x, y + i * lineHeight));
+    c.restore();
+    return lines.length;
+  }
+
+  drawComicScene(c, scene, x, y, w, h) {
+    const grad = c.createLinearGradient(x, y, x, y + h);
+    grad.addColorStop(0, scene === 'core' ? '#183646' : '#d86f43');
+    grad.addColorStop(1, scene === 'aircraft' || scene === 'team' ? '#142835' : '#e1b567');
+    c.fillStyle = grad; c.fillRect(x, y, w, h);
+    c.save(); c.translate(x, y);
+    c.strokeStyle = '#071018'; c.lineJoin = 'round';
+    if (scene === 'aircraft') {
+      c.fillStyle = '#10212c'; c.beginPath(); c.moveTo(80, 160); c.lineTo(510, 80); c.lineTo(700, 180); c.lineTo(470, 210); c.lineTo(360, 350); c.lineTo(310, 235); c.lineTo(80, 210); c.closePath(); c.fill(); c.lineWidth = 10; c.stroke();
+      c.fillStyle = '#ff6b2c'; c.beginPath(); c.moveTo(535, 155); c.lineTo(750, 115); c.lineTo(620, 205); c.closePath(); c.fill();
+      for (let i = 0; i < 6; i++) { c.fillStyle = `rgba(255,246,190,${.12 - i * .012})`; c.beginPath(); c.arc(600, 170, 70 + i * 35, 0, TAU); c.fill(); }
+      this.comicCaption(c, 36, 420, 300, 118, 'A STOLEN CORE.\nA DEAD TRANSPONDER.');
+    } else if (scene === 'team') {
+      this.drawMountains(c, w, h, '#25313a', '#5a3f3d');
+      for (let i = 0; i < 4; i++) this.drawComicSoldier(c, 150 + i * 135, 370 + (i % 2) * 18, .9, i === 3 ? '#436c5c' : '#33464a');
+      c.fillStyle = 'rgba(255,85,45,.45)'; c.beginPath(); c.arc(245, 370, 100, 0, TAU); c.fill();
+      c.strokeStyle = '#ffcc69'; c.lineWidth = 7; for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; c.beginPath(); c.moveTo(245 + Math.cos(a) * 35, 370 + Math.sin(a) * 35); c.lineTo(245 + Math.cos(a) * 120, 370 + Math.sin(a) * 120); c.stroke(); }
+      this.comicCaption(c, 380, 32, 330, 112, 'THE AMBUSH TOOK\nTHREE CALLSIGNS OFFLINE.');
+    } else if (scene === 'hero') {
+      this.drawMountains(c, w, h, '#30414b', '#7b4e3d');
+      this.drawComicSoldier(c, 390, 340, 1.8, '#416d5c');
+      c.fillStyle = '#ff6b2c'; c.beginP
