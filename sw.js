@@ -1,4 +1,4 @@
-const CACHE = 'black-horizon-v6';
+const CACHE = 'black-horizon-v7';
 const ASSETS = [
   './',
   './index.html',
