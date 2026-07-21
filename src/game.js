@@ -68,15 +68,37 @@ const normalizeRasterPart = (part, index) => {
   const lines = part.replace(/\r\n/g, '\n').trim().split('\n');
   if (/^BLACK_HORIZON_PRODUCTION_ATLAS_PART_\d+$/.test(lines[0] || '')) lines.shift();
   const payload = lines.join('').replace(/\s+/g, '');
-  if (!payload || !/^[A-Za-z0-9+/=]+$/.test(payload)) throw new Error(`Raster atlas part ${index} is invalid`);
+  if (!payload || !/^[A-Za-z0-9+/]*={0,2}$/.test(payload) || payload.length % 4 !== 0) {
+    throw new Error(`Raster atlas part ${index} is invalid`);
+  }
   return payload;
 };
 
-const createRasterObjectUrl = (parts) => {
-  const payload = parts.map(normalizeRasterPart).join('');
-  const binary = atob(payload);
+const decodeRasterPart = (part, index) => {
+  const payload = normalizeRasterPart(part, index);
+  let binary;
+  try {
+    binary = atob(payload);
+  } catch (error) {
+    throw new Error(`Raster atlas part ${index} could not be decoded`, { cause: error });
+  }
   const bytes = new Uint8Array(binary.length);
-  for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+  for (let offset = 0; offset < binary.length; offset++) bytes[offset] = binary.charCodeAt(offset);
+  return bytes;
+};
+
+const createRasterObjectUrl = (parts) => {
+  const decodedParts = parts.map(decodeRasterPart);
+  const totalBytes = decodedParts.reduce((sum, bytes) => sum + bytes.length, 0);
+  const bytes = new Uint8Array(totalBytes);
+  let writeOffset = 0;
+  for (const partBytes of decodedParts) {
+    bytes.set(partBytes, writeOffset);
+    writeOffset += partBytes.length;
+  }
+  const signature = String.fromCharCode(...bytes.subarray(0, 4));
+  const format = String.fromCharCode(...bytes.subarray(8, 12));
+  if (signature !== 'RIFF' || format !== 'WEBP') throw new Error('Raster production atlas is not a valid WebP file');
   return URL.createObjectURL(new Blob([bytes], { type: 'image/webp' }));
 };
 

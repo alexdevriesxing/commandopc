@@ -30,6 +30,8 @@ assert.match(loader, /production-raster\.js/);
 assert.match(loader, /polish\.js/);
 assert.match(loader, /ship-polish\.js/);
 assert.match(loader, /createRasterObjectUrl/);
+assert.match(loader, /decodeRasterPart/);
+assert.match(loader, /decodedParts = parts\.map\(decodeRasterPart\)/);
 assert.match(loader, /URL\.createObjectURL/);
 assert.match(loader, /waitForProductionAssets/);
 assert.doesNotMatch(loader, /data:image\/webp;base64/);
@@ -50,11 +52,19 @@ for (const src of [manifest.screens.keyArt, manifest.screens.comicIntro, manifes
 }
 const rasterParts = manifest.rasterProduction.parts.map((src) => new URL(src, root));
 for (const file of rasterParts) assert.ok(fs.existsSync(file), `missing raster production part ${file.pathname}`);
-const rasterBase64 = rasterParts
-  .map((file) => fs.readFileSync(file, 'utf8').replace(/^BLACK_HORIZON_PRODUCTION_ATLAS_PART_\d+\r?\n/, ''))
-  .join('');
-const rasterBytes = Buffer.from(rasterBase64, 'base64');
+const normalizeRasterPart = (file) => fs.readFileSync(file, 'utf8')
+  .replace(/^BLACK_HORIZON_PRODUCTION_ATLAS_PART_\d+\r?\n/, '')
+  .replace(/\s+/g, '');
+const rasterPayloads = rasterParts.map(normalizeRasterPart);
+for (const [index, payload] of rasterPayloads.entries()) {
+  assert.match(payload, /^[A-Za-z0-9+/]*={0,2}$/, `raster part ${index} must be strict Base64`);
+  assert.equal(payload.length % 4, 0, `raster part ${index} must have complete Base64 quanta`);
+  assert.doesNotThrow(() => atob(payload), `browser decoder must accept raster part ${index}`);
+}
+const rasterBytes = Buffer.concat(rasterPayloads.map((payload) => Buffer.from(payload, 'base64')));
 assert.ok(rasterBytes.length > 60_000, 'raster production atlas must contain the full art pack');
+assert.equal(rasterBytes.subarray(0, 4).toString('ascii'), 'RIFF', 'raster atlas must begin with RIFF');
+assert.equal(rasterBytes.subarray(8, 12).toString('ascii'), 'WEBP', 'raster atlas must be WebP');
 assert.equal(manifest.rasterProduction.encoding, 'base64-parts');
 assert.match(production, /BLACK_HORIZON_ASSET_MANIFEST/);
 assert.match(rasterRuntime, /RASTER_PRODUCTION_MANIFEST/);
@@ -80,7 +90,7 @@ assert.match(shipPolish, /autoPause/);
 assert.match(shipPolish, /navigator\.vibrate/);
 assert.match(shipPolish, /bh-performance-mode/);
 assert.match(shipPolish, /__blackHorizonShip/);
-assert.match(serviceWorker, /black-horizon-v6/);
+assert.match(serviceWorker, /black-horizon-v7/);
 assert.match(serviceWorker, /src\/polish\.js/);
 assert.match(serviceWorker, /src\/ship-polish\.js/);
 assert.match(serviceWorker, /event\.request\.mode === 'navigate'/);
@@ -93,4 +103,4 @@ assert.match(js, /const OPERATION_MUTATORS = \[/);
 assert.match(js, /spawnDirectorWave/);
 assert.match(js, /rocketeer:/); assert.match(js, /medic:/); assert.match(js, /hunter:/);
 assert.equal((js.match(/codename:/g) || []).length, 6, 'expected six campaign missions');
-console.log('Smoke checks passed: install/update UX, persisted display settings, mobile safe areas, touch haptics, adaptive presentation, auto-pause, accessible controls, Blob atlas loading, production art, campaign depth, audio and offline shell are present.');
+console.log('Smoke checks passed: strict browser-safe raster-part decoding, WebP integrity, install/update UX, persisted display settings, mobile safe areas, touch haptics, adaptive presentation, auto-pause, accessible controls, production art, campaign depth, audio and offline shell are present.');
