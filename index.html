@@ -4,46 +4,58 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#071018" />
-  <meta name="description" content="Black Horizon: Cinder Protocol — a deep original top-down extraction shooter with production sprite atlases and procedural audio." />
+  <meta name="color-scheme" content="dark" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Black Horizon: Cinder Protocol — a deep original top-down extraction shooter with production sprite atlases, adaptive combat and procedural audio." />
+  <meta property="og:title" content="Black Horizon: Cinder Protocol" />
+  <meta property="og:description" content="A production-quality top-down desert extraction campaign playable in the browser." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/key-art.svg" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="preload" href="assets/logo.svg" as="image" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
   <title>Black Horizon: Cinder Protocol</title>
 </head>
 <body>
+  <a class="skip-link" href="#game">Skip to game</a>
   <main id="app" aria-label="Black Horizon game">
-    <section id="shell" class="shell">
+    <section id="shell" class="shell" aria-label="Black Horizon field console">
       <header class="topbar">
-        <a class="brand" href="#" aria-label="Black Horizon home">
+        <a class="brand" href="#game" aria-label="Black Horizon home and game canvas">
           <img src="assets/logo.svg" alt="Black Horizon: Cinder Protocol" />
         </a>
         <div class="status-cluster" aria-live="polite">
           <span id="audioStatus" class="status-chip">AUDIO ARMED</span>
-          <span id="modeStatus" class="status-chip status-chip--accent">WEB BUILD</span>
+          <span id="modeStatus" class="status-chip status-chip--accent">ONLINE BUILD</span>
         </div>
       </header>
 
       <div id="gameFrame" class="game-frame">
-        <canvas id="game" width="1280" height="720" aria-label="Top-down action game canvas" tabindex="0"></canvas>
+        <canvas id="game" width="1280" height="720" role="application" aria-label="Top-down action game canvas" aria-keyshortcuts="F2 Alt+Enter P Escape M" tabindex="0"></canvas>
         <div class="crt-overlay" aria-hidden="true"></div>
-        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+        <div class="orientation-advice" aria-hidden="true">
+          <div><strong>ROTATE FOR DEPLOYMENT</strong><span>Landscape orientation provides the full tactical view.</span></div>
+        </div>
 
-        <div id="touchControls" class="touch-controls" aria-hidden="true">
-          <div id="touchStick" class="touch-stick"><span></span></div>
+        <div id="touchControls" class="touch-controls" aria-hidden="true" aria-label="Touch game controls">
+          <div id="touchStick" class="touch-stick" role="application" aria-label="Movement stick"><span></span></div>
           <div class="touch-actions">
-            <button data-touch="grenade" aria-label="Throw grenade">G</button>
-            <button data-touch="dash" aria-label="Dash">DASH</button>
-            <button data-touch="fire" class="fire" aria-label="Fire weapon">FIRE</button>
+            <button type="button" data-touch="grenade" aria-label="Throw grenade">G</button>
+            <button type="button" data-touch="dash" aria-label="Dash">DASH</button>
+            <button type="button" data-touch="fire" class="fire" aria-label="Fire weapon">FIRE</button>
           </div>
         </div>
       </div>
 
-      <footer class="footerbar">
-        <div class="control-hint"><strong>MOVE</strong> WASD / ARROWS</div>
-        <div class="control-hint"><strong>AIM + FIRE</strong> MOUSE</div>
-        <div class="control-hint"><strong>GRENADE</strong> SPACE</div>
-        <div class="control-hint"><strong>DASH</strong> SHIFT</div>
-        <div class="control-hint"><strong>PAUSE</strong> P</div>
+      <footer class="footerbar" aria-label="Current controls">
+        <div class="control-hint"><strong>NAVIGATE</strong> ARROWS / WASD</div>
+        <div class="control-hint"><strong>SELECT</strong> ENTER</div>
+        <div class="control-hint"><strong>DISPLAY</strong> F2</div>
+        <div class="control-hint"><strong>FULLSCREEN</strong> ALT+ENTER</div>
       </footer>
     </section>
   </main>

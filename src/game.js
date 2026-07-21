@@ -5,6 +5,7 @@ const productionArtUrls = [
   new URL('./production-art.js', import.meta.url),
   new URL('./production-raster.js', import.meta.url),
   new URL('./polish.js', import.meta.url),
+  new URL('./ship-polish.js', import.meta.url),
 ];
 const rasterPartUrls = Array.from({ length: 14 }, (_, index) =>
   new URL(`../assets/raster/production-board-atlas-${String(index).padStart(2, '0')}.part`, import.meta.url)
