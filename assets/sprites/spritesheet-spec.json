@@ -1,6 +1,8 @@
 {
-  "title": "BLACK HORIZON: CINDER PROTOCOL",
-  "version": 3,
+  "schema": "black-horizon-spritesheet-spec/v1",
+  "version": "3.0.0",
+  "coordinateSystem": "top-left origin; columns advance left-to-right, rows top-to-bottom",
+  "runtime": "HTMLImageElement + CanvasRenderingContext2D.drawImage source rectangles",
   "atlases": {
     "player": {"src":"assets/sprites/player-atlas-v3.svg","format":"svg","cell":[128,128],"cols":8,"rows":4,"directions":["up","right","down","left"],"frames":8,"alpha":true},
     "enemies": {"src":"assets/sprites/enemy-atlas-v3.svg","format":"svg","cell":[128,128],"cols":4,"rows":11,"types":["rifleman","runner","grenadier","sniper","shield","heavy","drone","rocketeer","medic","hunter","boss"],"states":["idle","attack","hit","death"],"alpha":true},
@@ -9,14 +11,5 @@
     "vfx": {"src":"assets/vfx/vfx-atlas-v3.svg","format":"svg","cell":[128,128],"cols":8,"rows":4,"rows_meta":["muzzle","explosion","smoke","energy"],"alpha":true},
     "ui": {"src":"assets/ui/ui-atlas-v3.svg","format":"svg","cell":[96,96],"cols":8,"rows":4,"items":["story","operative","veteran","nightmare","health","armor","ammo","grenade","rapid","chain","survivor","elite","crossfire","armored","drone","hunter","medic","volatile","mine","blackout","power","ghost","iron","scavenge","explosive","combo","damage","reload","dash","objective","extract","core"],"alpha":true}
   },
-  "screens": {"keyArt":"assets/key-art.svg","comicIntro":"assets/intro/comic-intro.svg","heroPortrait":"assets/portraits/hero.svg","logo":"assets/logo.svg"},
-  "rasterProduction": {
-    "size": [1536,1328],
-    "regions": {
-      "keyArt":[0,0,768,432],"comicIntro":[768,0,768,432],"playerBoard":[0,432,384,256],"enemyBoard":[384,432,384,256],"bossBoard":[768,432,384,256],"itemsBoard":[1152,432,384,256],"vfxBoard":[0,688,384,256],"uiBoard":[384,688,384,256],"environmentBoard":[768,688,384,384],"logo":[0,1072,768,256]
-    },
-    "mime":"image/webp",
-    "encoding":"base64-parts",
-    "parts":["assets/raster/production-board-atlas-00.part","assets/raster/production-board-atlas-01.part","assets/raster/production-board-atlas-02.part","assets/raster/production-board-atlas-03.part","assets/raster/production-board-atlas-04.part","assets/raster/production-board-atlas-05.part","assets/raster/production-board-atlas-06.part","assets/raster/production-board-atlas-07.part","assets/raster/production-board-atlas-08.part","assets/raster/production-board-atlas-09.part","assets/raster/production-board-atlas-10.part","assets/raster/production-board-atlas-11.part","assets/raster/production-board-atlas-12.part","assets/raster/production-board-atlas-13.part"]
-  }
+  "quality": {"fixedCellBounds":true,"noLabelsInsideAtlases":true,"runtimeAddressable":true,"transparentBackground":true,"versionedImmutablePaths":true,"presentationBoardsAreNotGameplayAtlases":true}
 }

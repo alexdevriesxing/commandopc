@@ -1,16 +1,18 @@
-const CACHE = 'black-horizon-v8';
+const CACHE = 'black-horizon-v9';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './src/game.js',
-  './src/boot-v8.js',
+  './src/boot-v9.js',
   './src/production-art.js',
   './src/production-raster.js',
   './src/polish.js',
   './src/ship-polish.js',
   './manifest.webmanifest',
   './assets/asset-manifest.json',
+  './assets/sprites/spritesheet-spec.json',
+  './assets/sprites/SPRITESHEETS.md',
   './assets/logo.svg',
   './assets/favicon.svg',
   './assets/key-art.svg',
@@ -22,6 +24,12 @@ const ASSETS = [
   './assets/tiles/environment-atlas.svg',
   './assets/vfx/vfx-atlas.svg',
   './assets/ui/ui-atlas.svg',
+  './assets/sprites/player-atlas-v3.svg',
+  './assets/sprites/enemy-atlas-v3.svg',
+  './assets/sprites/pickup-weapon-atlas-v3.svg',
+  './assets/tiles/environment-atlas-v3.svg',
+  './assets/vfx/vfx-atlas-v3.svg',
+  './assets/ui/ui-atlas-v3.svg',
   './assets/raster/production-board-atlas-00.part',
   './assets/raster/production-board-atlas-01.part',
   './assets/raster/production-board-atlas-02.part',
@@ -83,11 +91,10 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-
   const url = new URL(event.request.url);
   const isEntrypoint = url.pathname.endsWith('/index.html')
     || url.pathname.endsWith('/src/game.js')
-    || url.pathname.endsWith('/src/boot-v8.js');
+    || url.pathname.endsWith('/src/boot-v9.js');
 
   if (event.request.mode === 'navigate' || isEntrypoint) {
     event.respondWith(fetch(event.request, { cache: 'no-store' })

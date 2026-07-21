@@ -8,7 +8,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="description" content="Black Horizon: Cinder Protocol — a deep original top-down extraction shooter with production sprite atlases, adaptive combat and procedural audio." />
+  <meta name="description" content="Black Horizon: Cinder Protocol — a deep original top-down extraction shooter with frame-authored production sprite atlases, adaptive combat and procedural audio." />
   <meta property="og:title" content="Black Horizon: Cinder Protocol" />
   <meta property="og:description" content="A production-quality top-down desert extraction campaign playable in the browser." />
   <meta property="og:type" content="website" />
@@ -29,7 +29,7 @@
         </a>
         <div class="status-cluster" aria-live="polite">
           <span id="audioStatus" class="status-chip">AUDIO ARMED</span>
-          <span id="modeStatus" class="status-chip status-chip--accent">ONLINE BUILD</span>
+          <span id="modeStatus" class="status-chip status-chip--accent">PRODUCTION BUILD</span>
         </div>
       </header>
 
@@ -61,7 +61,7 @@
   </main>
 
   <noscript>This game requires JavaScript.</noscript>
-  <script type="module" src="src/boot-v8.js"></script>
+  <script type="module" src="src/boot-v9.js"></script>
   <script>
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
       addEventListener('load', () => navigator.serviceWorker
