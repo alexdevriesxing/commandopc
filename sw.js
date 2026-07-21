@@ -3,6 +3,7 @@ const ASSETS = [
   './',
   './index.html',
   './styles.css',
+  './src/game.js',
   './src/boot-v8.js',
   './src/production-art.js',
   './src/production-raster.js',
@@ -84,7 +85,9 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
-  const isEntrypoint = url.pathname.endsWith('/index.html') || url.pathname.endsWith('/src/boot-v8.js');
+  const isEntrypoint = url.pathname.endsWith('/index.html')
+    || url.pathname.endsWith('/src/game.js')
+    || url.pathname.endsWith('/src/boot-v8.js');
 
   if (event.request.mode === 'navigate' || isEntrypoint) {
     event.respondWith(fetch(event.request, { cache: 'no-store' })
