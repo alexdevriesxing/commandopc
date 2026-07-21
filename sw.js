@@ -1,9 +1,9 @@
-const CACHE = 'black-horizon-v7';
+const CACHE = 'black-horizon-v8';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
-  './src/game.js',
+  './src/boot-v8.js',
   './src/production-art.js',
   './src/production-raster.js',
   './src/polish.js',
@@ -65,7 +65,9 @@ const cacheResponse = async (request, response) => {
 };
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
+  event.waitUntil(caches.open(CACHE)
+    .then((cache) => cache.addAll(ASSETS))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
@@ -81,8 +83,11 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request)
+  const url = new URL(event.request.url);
+  const isEntrypoint = url.pathname.endsWith('/index.html') || url.pathname.endsWith('/src/boot-v8.js');
+
+  if (event.request.mode === 'navigate' || isEntrypoint) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' })
       .then((response) => cacheResponse(event.request, response))
       .catch(async () => (await caches.match(event.request)) || caches.match('./index.html')));
     return;
