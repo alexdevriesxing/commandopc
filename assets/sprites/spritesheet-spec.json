@@ -1,0 +1,15 @@
+{
+  "schema": "black-horizon-spritesheet-spec/v1",
+  "version": "3.0.0",
+  "coordinateSystem": "top-left origin; columns advance left-to-right, rows top-to-bottom",
+  "runtime": "HTMLImageElement + CanvasRenderingContext2D.drawImage source rectangles",
+  "atlases": {
+    "player": {"src":"assets/sprites/player-atlas-v3.svg","format":"svg","cell":[128,128],"cols":8,"rows":4,"directions":["up","right","down","left"],"frames":8,"alpha":true},
+    "enemies": {"src":"assets/sprites/enemy-atlas-v3.svg","format":"svg","cell":[128,128],"cols":4,"rows":11,"types":["rifleman","runner","grenadier","sniper","shield","heavy","drone","rocketeer","medic","hunter","boss"],"states":["idle","attack","hit","death"],"alpha":true},
+    "pickups": {"src":"assets/sprites/pickup-weapon-atlas-v3.svg","format":"svg","cell":[112,112],"cols":6,"rows":2,"items":["health","armor","ammo","grenade","intel","core","rifle","smg","shotgun","lmg","launcher","plasma"],"alpha":true},
+    "environment": {"src":"assets/tiles/environment-atlas-v3.svg","format":"svg","cell":[160,160],"cols":6,"rows":6,"biomes":["canyon","oasis","ruins","salt","night","facility"],"slots":["ground","rock","feature","vehicle","structure","barrier"],"alpha":true},
+    "vfx": {"src":"assets/vfx/vfx-atlas-v3.svg","format":"svg","cell":[128,128],"cols":8,"rows":4,"rows_meta":["muzzle","explosion","smoke","energy"],"alpha":true},
+    "ui": {"src":"assets/ui/ui-atlas-v3.svg","format":"svg","cell":[96,96],"cols":8,"rows":4,"items":["story","operative","veteran","nightmare","health","armor","ammo","grenade","rapid","chain","survivor","elite","crossfire","armored","drone","hunter","medic","volatile","mine","blackout","power","ghost","iron","scavenge","explosive","combo","damage","reload","dash","objective","extract","core"],"alpha":true}
+  },
+  "quality": {"fixedCellBounds":true,"noLabelsInsideAtlases":true,"runtimeAddressable":true,"transparentBackground":true,"versionedImmutablePaths":true,"presentationBoardsAreNotGameplayAtlases":true}
+}
