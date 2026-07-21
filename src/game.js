@@ -1,3 +1,2 @@
-// Compatibility entrypoint for previously cached HTML shells.
-// The production loader is versioned so CDN and service-worker caches cannot pin an obsolete decoder.
-import './boot-v8.js';
+// Compatibility entrypoint for cached shells and older deployments.
+import './boot-v9.js';
