@@ -1,4 +1,4 @@
-); c.translate(this.x, sy + bob); c.rotate(this.angle + Math.PI / 2);
+c.translate(this.x, sy + bob); c.rotate(this.angle + Math.PI / 2);
     c.fillStyle = 'rgba(0,0,0,.24)'; c.beginPath(); c.ellipse(0, this.flying ? 20 - bob : 18, this.radius * 1.05, this.radius * .42, 0, 0, TAU); c.fill();
 
     if (this.flying) {

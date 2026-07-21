@@ -7,6 +7,7 @@ const ASSETS = [
   './src/production-art.js',
   './src/production-raster.js',
   './src/polish.js',
+  './src/ship-polish.js',
   './manifest.webmanifest',
   './assets/asset-manifest.json',
   './assets/logo.svg',
