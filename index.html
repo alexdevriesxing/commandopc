@@ -61,10 +61,13 @@
   </main>
 
   <noscript>This game requires JavaScript.</noscript>
-  <script type="module" src="src/game.js"></script>
+  <script type="module" src="src/boot-v8.js"></script>
   <script>
     if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-      addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+      addEventListener('load', () => navigator.serviceWorker
+        .register('./sw.js', { updateViaCache: 'none' })
+        .then((registration) => registration.update())
+        .catch(() => {}));
     }
   </script>
 </body>
